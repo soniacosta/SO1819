@@ -136,13 +136,12 @@ int main(int argc, char argv[]){
                 novoPreco = malloc(lidos * sizeof(char));
                 tamNome = vectorToString(palavras, novoPreco, 2, numPalavrasInput-1); //a variavel tamNome é reutilizada no mesmo contexto
                 sprintf(bitsCampoLinha,"%7s", novoPreco); // guardar só o campo preço com o novo valor
-                printf("%s",novoPreco);
                 idArtigo = atoi(palavras[1]); //ler o id
                 lseek(fdArtigos,9+(24*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linhabits dos outros campos deste artigo
                 write(fdArtigos,bitsCampoLinha,6); //escrever só o campo
                 lseek(fdArtigos,numOff_set,SEEK_SET); //repor o off_set no fim
                 break;
-                
+
             default: 
                 break;
         }
