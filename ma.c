@@ -18,6 +18,8 @@ int main(int argc, char argv[]){
 
     //vars
     size_t tamLinhaArtigos = 25; //calculos feitos para 24caracteres (25 é para ter espaço para o \0)
+    char linha[tamLinhaArtigos]; //linha que vai ser escrita no artigos, inicializada a 0
+    for(int i = 0; i<tamLinhaArtigos-1;i++){linha[i]='0'; linha[tamLinhaArtigos-1] = '\0';}
     
     char* buffRead = malloc(N); //o buff dado ao read
     size_t lidos;   //return do read(quantos caracteres leu)
@@ -27,11 +29,14 @@ int main(int argc, char argv[]){
 
     char* nome; //nome do artigo
     int tamNome = 0; 
-    
-    char linha[tamLinhaArtigos]; //linha que vai ser escrita no artigos, inicializada a 0
-    for(int i = 0; i<tamLinhaArtigos-1;i++){linha[i]='0'; linha[tamLinhaArtigos-1] = '\0';}
-    
 
+    int idArtigo = 0;
+    char bitsCampoLinha[8]; 
+    for(int i = 0; i<7;i++){bitsCampoLinha[i]='0'; bitsCampoLinha[7] = '\0';
+    }
+    
+    char* novoPreco;
+    
     /* abrir ficheiros e verificar */
     int fdArtigos = open("./artigos.txt", O_CREAT | O_RDWR, 0666);
     int fdStrings = open("./strings.txt", O_CREAT | O_RDWR, 0666);
@@ -100,25 +105,44 @@ int main(int argc, char argv[]){
         numPalavrasInput = gatherArg(palavras,buffRead,lidos);
         prog = buffRead[0];
         //printf("%c\n",prog);
-        
-        
+
         
         switch (prog){
             case 'i'://escrever artigo
                 nome = malloc(lidos * sizeof(char));
                 tamNome = vectorToString(palavras, nome, 1, numPalavrasInput-2);
                 sprintf(linha,"%7d %7s %7d\n", wcArtigos, palavras[numPalavrasInput-1], numOff_setStrings);
-                printf("%s \n",nome);
                 write(fdStrings,nome,tamNome);
+                
                 write(fdArtigos,linha,tamLinhaArtigos-1);
                 wcArtigos++;
                 numOff_setStrings+=tamNome;
                 break;
-            case 'n':
 
+            case 'n':
+                nome = malloc(lidos * sizeof(char));
+                tamNome = vectorToString(palavras, nome, 2, numPalavrasInput-1);
+                sprintf(bitsCampoLinha,"%7d", numOff_setStrings); // guardar só o campo refNome com o novo valor
+                write(fdStrings,nome,tamNome);
+                numOff_setStrings+=tamNome;
+
+                idArtigo = atoi(palavras[1]); //ler o id
+                lseek(fdArtigos,16+(24*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linha+bits dos outros campos deste artigo
+                write(fdArtigos,bitsCampoLinha,7); //escrever só o campo
+                lseek(fdArtigos,numOff_set,SEEK_SET); //repor o off_set no fim
                 break;
+
             case 'p':
+                novoPreco = malloc(lidos * sizeof(char));
+                tamNome = vectorToString(palavras, novoPreco, 2, numPalavrasInput-1); //a variavel tamNome é reutilizada no mesmo contexto
+                sprintf(bitsCampoLinha,"%7s", novoPreco); // guardar só o campo preço com o novo valor
+                printf("%s",novoPreco);
+                idArtigo = atoi(palavras[1]); //ler o id
+                lseek(fdArtigos,9+(24*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linhabits dos outros campos deste artigo
+                write(fdArtigos,bitsCampoLinha,6); //escrever só o campo
+                lseek(fdArtigos,numOff_set,SEEK_SET); //repor o off_set no fim
                 break;
+                
             default: 
                 break;
         }
