@@ -5,7 +5,7 @@
 
 /*----*/
 
-int main(int argc, char argv[]){
+int main(int argc, char* argv[]){
     //vars
     size_t tamLinhaArtigos = 48; //25; //calculos feitos para 24caracteres (25 é para ter espaço para o \0)
     char linha[tamLinhaArtigos]; //linha que vai ser escrita no artigos, inicializada a 0
