@@ -15,7 +15,6 @@ ssize_t readln(int fildes, void *buf, size_t nbyte);
 /*----*/
 
 int main(int argc, char argv[]){
-
     //vars
     size_t tamLinhaArtigos = 25; //calculos feitos para 24caracteres (25 é para ter espaço para o \0)
     char linha[tamLinhaArtigos]; //linha que vai ser escrita no artigos, inicializada a 0
@@ -97,6 +96,7 @@ int main(int argc, char argv[]){
     int numOff_setStrings = wcStrings;
     lseek(fdStrings,numOff_setStrings,SEEK_SET);
 
+    write(1,&wcArtigos,sizeof(int));
     while(1){
         
         lidos = readln(0, buffRead, N);
@@ -113,7 +113,11 @@ int main(int argc, char argv[]){
                 tamNome = vectorToString(palavras, nome, 1, numPalavrasInput-2);
                 sprintf(linha,"%7d %7s %7d\n", wcArtigos, palavras[numPalavrasInput-1], numOff_setStrings);
                 write(fdStrings,nome,tamNome);
-                
+                /*imprimir o valor do idArtigo*/
+                char tmp[7]={0x0};
+                sprintf(tmp,"%d\n", wcArtigos);
+                write(1,tmp,sizeof(tmp));
+                /**/
                 write(fdArtigos,linha,tamLinhaArtigos-1);
                 wcArtigos++;
                 numOff_setStrings+=tamNome;
