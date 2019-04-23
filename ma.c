@@ -16,9 +16,9 @@ ssize_t readln(int fildes, void *buf, size_t nbyte);
 
 int main(int argc, char argv[]){
     //vars
-    size_t tamLinhaArtigos = 25; //calculos feitos para 24caracteres (25 é para ter espaço para o \0)
+    size_t tamLinhaArtigos = 48; //25; //calculos feitos para 24caracteres (25 é para ter espaço para o \0)
     char linha[tamLinhaArtigos]; //linha que vai ser escrita no artigos, inicializada a 0
-    for(int i = 0; i<tamLinhaArtigos-1;i++){linha[i]='0'; linha[tamLinhaArtigos-1] = '\0';}
+    for(int i = 0; i<tamLinhaArtigos-1;i++) { linha[i]='0'; linha[tamLinhaArtigos-1] = '\0';}
     
     char* buffRead = malloc(N); //o buff dado ao read
     size_t lidos;   //return do read(quantos caracteres leu)
@@ -30,8 +30,8 @@ int main(int argc, char argv[]){
     int tamNome = 0; 
 
     int idArtigo = 0;
-    char bitsCampoLinha[8]; 
-    for(int i = 0; i<7;i++){bitsCampoLinha[i]='0'; bitsCampoLinha[7] = '\0';
+    char bitsCampoLinha[16]; 
+    for(int i = 0; i<15;i++){bitsCampoLinha[i]='0'; bitsCampoLinha[15] = '\0';
     }
     
     char* novoPreco;
@@ -109,12 +109,17 @@ int main(int argc, char argv[]){
         
         switch (prog){
             case 'i'://escrever artigo
+
+                /*
+                *
+                * Inserir novo artigo
+                */
                 nome = malloc(lidos * sizeof(char));
                 tamNome = vectorToString(palavras, nome, 1, numPalavrasInput-2);
-                sprintf(linha,"%7d %7s %7d\n", wcArtigos, palavras[numPalavrasInput-1], numOff_setStrings);
+                sprintf(linha,"%14d %15s %15d\n", wcArtigos, palavras[numPalavrasInput-1], numOff_setStrings);
                 write(fdStrings,nome,tamNome);
                 /*imprimir o valor do idArtigo*/
-                char tmp[7]={0x0};
+                char tmp[15]={0x0};
                 sprintf(tmp,"%d\n", wcArtigos);
                 write(1,tmp,sizeof(tmp));
                 /**/
@@ -124,25 +129,34 @@ int main(int argc, char argv[]){
                 break;
 
             case 'n':
+
+                /*
+                *
+                * Alterar nome artigo
+                */
                 nome = malloc(lidos * sizeof(char));
                 tamNome = vectorToString(palavras, nome, 2, numPalavrasInput-1);
-                sprintf(bitsCampoLinha,"%7d", numOff_setStrings); // guardar só o campo refNome com o novo valor
+                sprintf(bitsCampoLinha,"%14d\n", numOff_setStrings); // guardar só o campo refNome com o novo valor
                 write(fdStrings,nome,tamNome);
                 numOff_setStrings+=tamNome;
-
                 idArtigo = atoi(palavras[1]); //ler o id
-                lseek(fdArtigos,16+(24*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linha+bits dos outros campos deste artigo
-                write(fdArtigos,bitsCampoLinha,7); //escrever só o campo
+                lseek(fdArtigos,32+(47*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linha+bits dos outros campos deste artigo
+                write(fdArtigos,bitsCampoLinha,15); //escrever só o campo
                 lseek(fdArtigos,numOff_set,SEEK_SET); //repor o off_set no fim
                 break;
 
             case 'p':
+
+                /*
+                *
+                * Inserir preco artigo
+                */
                 novoPreco = malloc(lidos * sizeof(char));
                 tamNome = vectorToString(palavras, novoPreco, 2, numPalavrasInput-1); //a variavel tamNome é reutilizada no mesmo contexto
-                sprintf(bitsCampoLinha,"%7s", novoPreco); // guardar só o campo preço com o novo valor
+                sprintf(bitsCampoLinha,"%15s", novoPreco); // guardar só o campo preço com o novo valor
                 idArtigo = atoi(palavras[1]); //ler o id
-                lseek(fdArtigos,9+(24*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linhabits dos outros campos deste artigo
-                write(fdArtigos,bitsCampoLinha,6); //escrever só o campo
+                lseek(fdArtigos,16+(47*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linhabits dos outros campos deste artigo
+                write(fdArtigos,bitsCampoLinha,14); //escrever só o campo
                 lseek(fdArtigos,numOff_set,SEEK_SET); //repor o off_set no fim
                 break;
 
