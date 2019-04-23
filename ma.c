@@ -30,7 +30,8 @@ int main(int argc, char* argv[]){
     /* abrir ficheiros e verificar */
     int fdArtigos = open("./artigos.txt", O_CREAT | O_RDWR, 0666);
     int fdStrings = open("./strings.txt", O_CREAT | O_RDWR, 0666);
-    if(fdArtigos == -1 || fdStrings == -1){
+    int fdStock = open("./stock.txt", O_CREAT | O_RDWR, 0666);
+    if(fdArtigos == -1 || fdStrings == -1 || fdStock == -1){
         perror(0);
         _exit(errno);
     }
@@ -109,7 +110,7 @@ int main(int argc, char* argv[]){
                 tamNome = vectorToString(palavras, nome, 1, numPalavrasInput-2);
                 sprintf(linha,"%14d %15s %15d\n", wcArtigos, palavras[numPalavrasInput-1], numOff_setStrings);
                 write(fdStrings,nome,tamNome);
-                /*imprimir o valor do idArtigo*/
+                /*imprimir o valor do idArtigo para o terminal*/
                 char tmp[15]={0x0};
                 sprintf(tmp,"%d\n", wcArtigos);
                 write(1,tmp,sizeof(tmp));
@@ -117,6 +118,16 @@ int main(int argc, char* argv[]){
                 write(fdArtigos,linha,tamLinhaArtigos-1);
                 wcArtigos++;
                 numOff_setStrings+=tamNome;
+
+                /*
+                 Inserir novo artigo no stock
+                */
+                int stockInicial = 0;
+                int tam_stock = 27;
+                char* stock = malloc(tam_stock);
+                sprintf(stock,"%14d %10d\n", wcArtigos, stockInicial);
+                write(fdStock,stock,tam_stock-1);
+                
                 break;
 
             case 'n':
