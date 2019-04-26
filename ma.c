@@ -10,23 +10,23 @@ int main(int argc, char* argv[]){
     size_t tamLinhaArtigos = 48; //25; //calculos feitos para 24caracteres (25 é para ter espaço para o \0)
     char linha[tamLinhaArtigos]; //linha que vai ser escrita no artigos, inicializada a 0
     for(int i = 0; i<tamLinhaArtigos-1;i++) { linha[i]='0'; linha[tamLinhaArtigos-1] = '\0';}
-    
+
     char* buffRead = malloc(N); //o buff dado ao read
     size_t lidos;   //return do read(quantos caracteres leu)
     char* palavras[32]; //o maximo de palavras lidas é 32 por convençao
-    int numPalavrasInput = 0; 
+    int numPalavrasInput = 0;
     char prog;  //opcao : i , n , p
 
     char* nome; //nome do artigo
-    int tamNome = 0; 
+    int tamNome = 0;
 
     int idArtigo = 0;
-    char bitsCampoLinha[16]; 
+    char bitsCampoLinha[16];
     for(int i = 0; i<15;i++){bitsCampoLinha[i]='0'; bitsCampoLinha[15] = '\0';
     }
-    
+
     char* novoPreco;
-    
+
     /* abrir ficheiros e verificar */
     int fdArtigos = open("./artigos.txt", O_CREAT | O_RDWR, 0666);
     int fdStrings = open("./strings.txt", O_CREAT | O_RDWR, 0666);
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]){
         _exit(errno);
     }
 
-    /*verificar "wc -l" do ficheiro artigos para obter o numero de ids existentes 
+    /*verificar "wc -l" do ficheiro artigos para obter o numero de ids existentes
     e verificar "wc -c" para obter o numero de bits do ficheiros strings para usar como offset*/
     int fd[2];
     pipe(fd);
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]){
 
     close(fd[1]);//0 e de leitura
     char buf[10];
-    
+
     int n = read(fd[0],buf, sizeof(buf)); //lê do pipe para o buf
     if(n <=0){
         perror(0);
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]){
 
     close(fd2[1]);//0 e de leitura
     char buf2[10];
-    
+
     int n2 = read(fd2[0],buf2, sizeof(buf2)); //lê do pipe para o buf2
     if(n2 <=0){
         perror(0);
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]){
 
     write(1,&wcArtigos,sizeof(int));
     while(1){
-        
+
         lidos = readln(0, buffRead, N);
         if(lidos <= 0) break;
 
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]){
         prog = buffRead[0];
         //printf("%c\n",prog);
 
-        
+
         switch (prog){
             case 'i'://escrever artigo
 
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]){
                 char* stock = malloc(tam_stock);
                 sprintf(stock,"%14d %10d\n", wcArtigos, stockInicial);
                 write(fdStock,stock,tam_stock-1);
-                
+
                 break;
 
             case 'n':
@@ -162,14 +162,14 @@ int main(int argc, char* argv[]){
                 lseek(fdArtigos,numOff_set,SEEK_SET); //repor o off_set no fim
                 break;
 
-            default: 
+            default:
                 break;
         }
 
-        
+
     }
     close(fdStrings);
     close(fdArtigos);
     return 0;
-    
+
 }
