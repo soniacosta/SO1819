@@ -30,8 +30,7 @@ int main(int argc, char* argv[]){
     /* abrir ficheiros e verificar */
     int fdArtigos = open("./artigos.txt", O_CREAT | O_RDWR, 0666);
     int fdStrings = open("./strings.txt", O_CREAT | O_RDWR, 0666);
-    int fdStock = open("./stock.txt", O_CREAT | O_RDWR, 0666);
-    if(fdArtigos == -1 || fdStrings == -1 || fdStock == -1){
+    if(fdArtigos == -1 || fdStrings == -1){
         perror(0);
         _exit(errno);
     }
@@ -119,14 +118,11 @@ int main(int argc, char* argv[]){
                 wcArtigos++;
                 numOff_setStrings+=tamNome;
 
-                /*
-                 Inserir novo artigo no stock
-                */
-                int stockInicial = 0;
-                int tam_stock = 27;
-                char* stock = malloc(tam_stock);
-                sprintf(stock,"%14d %10d\n", wcArtigos, stockInicial);
-                write(fdStock,stock,tam_stock-1);
+                //enviar informaçao de alterar stock para a queue
+                int fdqueue=open("./queue", O_RDWR, 0666);
+                write(fdqueue, wcArtigos, sizeof(wcArtigos));
+                close(fdqueue);
+
 
                 break;
 

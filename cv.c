@@ -1,5 +1,6 @@
 #include "lib/auxiliar.h"
 
+//Falta imprimir o que recebe do FIFO
 
 int main(){
 
