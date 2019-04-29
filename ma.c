@@ -83,7 +83,6 @@ int main(int argc, char* argv[]){
 
         numPalavrasInput = gatherArg(palavras,buffRead,lidos);
         prog = buffRead[0];
-
         switch (prog){
 
             case 'i'://escrever artigo
@@ -97,7 +96,7 @@ int main(int argc, char* argv[]){
                 write(fdStrings,nome,tamNome);
 
                 /*imprimir o valor do idArtigo para o terminal*/
-                sprintf(tmp,"% d", wcArtigos);
+                sprintf(tmp,"%d", wcArtigos);
                 /**/
                 write(fdArtigos,linha,tamLinhaArtigos-1);
                 numOff_setStrings+=tamNome;
@@ -108,6 +107,7 @@ int main(int argc, char* argv[]){
                 write(fdqueue, tmp, sizeof(tmp));
                 close(fdqueue);
                 write(1, tmp, sizeof(wcArtigos));
+                write(1,"\n",1);
                 wcArtigos++;
 
                 break;
@@ -152,6 +152,9 @@ int main(int argc, char* argv[]){
     }
     close(fdStrings);
     close(fdArtigos);
+    free(buffRead);
+    free(nome);
+    free(novoPreco);
     return 0;
 
 }

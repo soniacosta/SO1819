@@ -21,7 +21,7 @@ size_t gatherArg(char* arg[], char* buffer, size_t size){
 		char *elem = (char*) arg[l];
         letra = 0;
 		for(j = i ,x = 0; j < size && buffer[j] != ' ' && buffer[j] != '\n'; j++, x++){
-            letra ++; printf("%c\n", buffer[j]);
+            letra ++; 
 			elem[x] = buffer[j];
 		}
 

@@ -10,7 +10,7 @@ int main(){
   int i=getpid();
   char nomefifo[10];
   sprintf(nomefifo, "./%07d", i );//converte o int i numa string para nomear o fifo
-  printf("%s\n", nomefifo);
+  //printf("%s\n", nomefifo);
   int fifo=mkfifo(nomefifo, 0666);
 
   //fifo comum ao servidor e aos clientes
@@ -33,6 +33,7 @@ int main(){
       if(sread <=0){break;}
 
       numPalavrasInput = gatherArg(palavras,buffRead,sread);
+      buffRead[0] = 0;
       switch (numPalavrasInput){
 
         //instruçao que vem do ficheiro Artigos, para alterar stock
@@ -55,15 +56,19 @@ int main(){
     /// 3. Enviar a linha para o fifo queue:
       fdQueue = open(nomeFifoGeral, O_WRONLY);
              
-      write(fdQueue, linha, 48);
-      write(1, linha, 48);
+      write(fdQueue, linha, strlen(linha));
+      //write(1, linha, strlen(linha));
       close(fdQueue);
-        
-      //fdFifo = open(nomefifo,O_RDONLY);
-      //read
-
+      linha[0] = 0;
+      
+    //4. receber do fifo a resposta
+      fdFifo = open(nomefifo,O_RDONLY);
+      int lidos = read(fdFifo,buffRead,N);
+      close(fdFifo);
+      write(1,buffRead,lidos);
+      buffRead[0] = 0;
 
   }
-
+  free(buffRead);
   return 0;
 }
