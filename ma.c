@@ -9,7 +9,8 @@ int main(int argc, char* argv[]){
     //vars
     size_t tamLinhaArtigos = 48; //25; //calculos feitos para 24caracteres (25 é para ter espaço para o \0)
     char linha[tamLinhaArtigos]; //linha que vai ser escrita no artigos, inicializada a 0
-    for(int i = 0; i<tamLinhaArtigos-1;i++) { linha[i]='0'; linha[tamLinhaArtigos-1] = '\0';}
+    //for(int i = 0; i<tamLinhaArtigos-1;i++) { linha[i]='0'; } 
+    linha[tamLinhaArtigos-1] = '\0';
 
     char* buffRead = malloc(N); //o buff dado ao read
     size_t lidos;   //return do read(quantos caracteres leu)
@@ -22,8 +23,18 @@ int main(int argc, char* argv[]){
 
     int idArtigo = 0;
     char bitsCampoLinha[16];
-    for(int i = 0; i<15;i++){bitsCampoLinha[i]='0'; bitsCampoLinha[15] = '\0';
-    }
+    //for(int i = 0; i<15;i++){ bitsCampoLinha[i]='0'; } 
+    bitsCampoLinha[15] = '\0';
+    
+    char * nomeFifo = "./queue";
+    //criar fifo e abrir:
+    int fifoQ=mkfifo(nomeFifo, 0666);
+    //if(fifoQ == -1){
+    //        perror(0);
+    //        _exit(errno);
+    //}
+
+    int fdqueue;
 
     char* novoPreco;
 
@@ -59,35 +70,12 @@ int main(int argc, char* argv[]){
 
     int wcArtigos = 0;
     sscanf(buf, "%d",&wcArtigos); //do buf queremos só a primeira parte (ver wc -l)
-    int numOff_set = wcArtigos*(tamLinhaArtigos-1); //o offset vai ser o numero de linhas * numero de caracteres de uma linha
-    lseek(fdArtigos,numOff_set,SEEK_SET);
-    /************************************/
-    int fd2[2];
-    pipe(fd2);
-    if(!fork()){ //filho
-        close(fd2[0]); //fechamos o 0 (leitura)
-        dup2(fd2[1],1);
-        close(fd2[1]);
-        execlp("wc","wc", "-c", "strings.txt",(char*)0); //queremos saber quantos bits existem no ficheiro
-        _exit(0);
-    }
+    int numOff_set = lseek(fdArtigos,0,SEEK_END);
+    
+    int numOff_setStrings = lseek(fdStrings,0,SEEK_END);
+    //write(1,&wcArtigos,sizeof(int));
+    char tmp[16]={0x0};
 
-    close(fd2[1]);//0 e de leitura
-    char buf2[10];
-
-    int n2 = read(fd2[0],buf2, sizeof(buf2)); //lê do pipe para o buf2
-    if(n2 <=0){
-        perror(0);
-        _exit(errno);
-    }
-    close(fd2[0]);
-
-    int wcStrings = 0;
-    sscanf(buf2, "%d",&wcStrings); //do buf2 queremos só a primeira parte (ver wc -c)
-    int numOff_setStrings = wcStrings;
-    lseek(fdStrings,numOff_setStrings,SEEK_SET);
-
-    write(1,&wcArtigos,sizeof(int));
     while(1){
 
         lidos = readln(0, buffRead, N);
@@ -95,12 +83,10 @@ int main(int argc, char* argv[]){
 
         numPalavrasInput = gatherArg(palavras,buffRead,lidos);
         prog = buffRead[0];
-        //printf("%c\n",prog);
-
 
         switch (prog){
-            case 'i'://escrever artigo
 
+            case 'i'://escrever artigo
                 /*
                 *
                 * Inserir novo artigo
@@ -109,20 +95,20 @@ int main(int argc, char* argv[]){
                 tamNome = vectorToString(palavras, nome, 1, numPalavrasInput-2);
                 sprintf(linha,"%14d %15s %15d\n", wcArtigos, palavras[numPalavrasInput-1], numOff_setStrings);
                 write(fdStrings,nome,tamNome);
+
                 /*imprimir o valor do idArtigo para o terminal*/
-                char tmp[15]={0x0};
-                sprintf(tmp,"%d\n", wcArtigos);
-                write(1,tmp,sizeof(tmp));
+                sprintf(tmp,"% d", wcArtigos);
                 /**/
                 write(fdArtigos,linha,tamLinhaArtigos-1);
-                wcArtigos++;
                 numOff_setStrings+=tamNome;
 
                 //enviar informaçao de alterar stock para a queue
-                int fdqueue=open("./queue", O_RDWR, 0666);
-                write(fdqueue, wcArtigos, sizeof(wcArtigos));
+                //printf("%d %s", sizeof(tmp),tmp);
+                fdqueue=open(nomeFifo, O_WRONLY);
+                write(fdqueue, tmp, sizeof(tmp));
                 close(fdqueue);
-
+                write(1, tmp, sizeof(wcArtigos));
+                wcArtigos++;
 
                 break;
 
@@ -140,7 +126,7 @@ int main(int argc, char* argv[]){
                 idArtigo = atoi(palavras[1]); //ler o id
                 lseek(fdArtigos,32+(47*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linha+bits dos outros campos deste artigo
                 write(fdArtigos,bitsCampoLinha,15); //escrever só o campo
-                lseek(fdArtigos,numOff_set,SEEK_SET); //repor o off_set no fim
+                lseek(fdArtigos,0,SEEK_END); //repor o off_set no fim
                 break;
 
             case 'p':
@@ -155,7 +141,7 @@ int main(int argc, char* argv[]){
                 idArtigo = atoi(palavras[1]); //ler o id
                 lseek(fdArtigos,16+(47*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linhabits dos outros campos deste artigo
                 write(fdArtigos,bitsCampoLinha,14); //escrever só o campo
-                lseek(fdArtigos,numOff_set,SEEK_SET); //repor o off_set no fim
+                lseek(fdArtigos,0,SEEK_END); //repor o off_set no fim
                 break;
 
             default:

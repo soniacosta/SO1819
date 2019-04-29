@@ -1,75 +1,96 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <string.h>
+#include "lib/auxiliar.h"
+
 #define N 48
 #define tamLinhaArtigos 48
 
 int main(int argc, char* argv[]){
+    //printf("111");
 
-  //criar fifo e abrir:
-  int fifoq=mkfifo("queue", 0666);
-  int fdqueue=open("./queue", O_RDWR, 0666);
+    char* palavras[5]; //o maximo de palavras lidas é 5por convençao
+    int numPalavrasInput = 0;
+    //unlink("./queue");
+    char * nomeFifoGeral = "./queue";
+    //criar fifo e abrir:
+    int fifoQ=mkfifo(nomeFifoGeral, 0666);
+    //if(fifoQ == -1){
+    //        perror(0);
+    //        _exit(errno);
+    //    }
 
+    int fdqueue;
+
+    int lidos;
+    char* buffRead = malloc(N);
+    int tamLinhaStocks = 32;
+    char linhastock[tamLinhaStocks];
+    int  fdStock , fdArtigos, fdFifoCv;
+    int id, quantidade = 1234;
+    float preco = 0;
+    int stock = 0;
+   
+    char nomeFifoCv[8];
 
    while(1){
 
-    int lidos;
-    char* buffRead;
+        //ler do fifo geral
+        fdqueue = open(nomeFifoGeral, O_RDONLY); 
+        if(fdqueue == -1){
+            write(1,"error!",6);
+            perror(0);
+            _exit(errno);
+        }
+        lidos = read(fdqueue,buffRead, N);
+        close(fdqueue);
+        if(lidos <= 0) { perror(0); _exit(errno); break; }
+            // fechar a queue para que os clientes possam escrever
+        int numPalavrasInput = gatherArg(palavras,buffRead,lidos);
+        if(numPalavrasInput > 3){ break; }
+        printf("num de plavras lidas: %d %s \n", numPalavrasInput, buffRead);
+        switch (numPalavrasInput){
 
-    while(lidos=readln(fdqueue,buffRead, N){
+            //instruçao que vem do ficheiro Artigo, para criar o stock
+            case (1):
+                fdStock=open("./stocks.txt", O_RDWR | O_CREAT, 0666);
+                sscanf(buffRead, "%d",&id);
 
-          if(lidos <= 0) break;
-          int numPalavrasInput = gatherArg(palavras,buffRead,lidos);
-          if(numPalavrasInput>3){break;}
+                sprintf(linhastock, "%15d %15d\n", id, quantidade);
+                //printf("%d\n", id);
+                lseek(fdStock,0,SEEK_END); 
+                write(fdStock,linhastock,32);
+                close(fdStock);
 
+                break;
 
-      switch (numPalavrasInput){
+            //quando quer devolver o :
+            case(2):
+                    printf("case 2: %s %s \n", palavras[0], palavras[1]);
+                    //fdFifoCv = open()
+                    id = atoi(palavras[0]);
+                    
+                    fdStock = open("./stocks", O_RDONLY , 0666);
+                    fdArtigos = open("./artigos.txt", O_RDONLY, 0666);
+                    if(fdArtigos == -1 || fdStock == -1){
+                        perror(0);
+                        _exit(errno);
+                    }
+                    
+                    // TODO : verificar se o id existe
+                    lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
+                    read(fdStock,&stock,15);
+                    close(fdStock);
+                    printf("stock : %d", stock);
 
-          //instruçao que vem do ficheiro Artigos, para alterar stock
-          case (1):
-              int  fdStock=open("./stocks", O_RDONLY | O_WRONLY | O_CREAT, 0666);
-              int id, quantidade=0;
-              sscanf(buffRead, "%d",&id);
-
-              tamLinha=32;
-              char linhastock[tamLinha];
-              linhastock={0x0};
-              sprintf(linhastock, "%15d %15d\n", id, quantidade);
-
-              lseek(fdStock,0,SEEK_END);
-              write(fdStock,linhastock,32);
-
-              close(fdStock);
-          break;
-
-          //quando quer devolver o stock e preços:
-          case(2):
-            int id2;
-            char fifo[8];
-            tamLinha=32;
-            char linhas2[tamLinha];
-            linha2={0x0};
-
-            int fdStock=open("./stocks", O_RDONLY | O_WRONLY | O_CREAT, 0666);
-            int fdArtigos = open("./artigos.txt", O_CREAT | O_RDWR, 0666);
-            if(fdArtigos == -1 || fdStock == -1){
-                perror(0);
-                _exit(errno);
-            }
-
-            lseek(fdArtigos, id2*tamLinhaArtigos+15,SEEK_END);
-            //INCOMPLETO
-            sscanf(buffRead, "%s %d", &fifo, &id2);
-            sprintf(linha2,"%15d %15d\n", id2, )
-
-          case(3):
-
+                    lseek(fdArtigos, id*tamLinhaArtigos+15,SEEK_SET);
+                    read(fdArtigos,&preco,15);
+                    close(fdArtigos);
+                    printf("preco : %f\n",preco);
+                    //INCOMPLETO
+                    //sscanf(buffRead, "%s %d", &fifoQ, &id);
+                    //sprintf(linha2,"%15d %15d\n", id2, )  
+                    break;
+                    /*case(3):
+                    
+        
 
             //quando quer adicionar artigos ao stock:
             if(quantidade>0){
@@ -81,24 +102,15 @@ int main(int argc, char* argv[]){
             else{
 
             }
+            }
+            */
+            default:
+                printf("default 1: \n");
+                break;
 
         }
-
-
-
-
-      }
-
-
-
-
-
-
-
-
-
-
+        fdFifoCv = open(nomeFifoCv,O_WRONLY);
+        
+        //write(fdFifoCv,)
    }
-
-
 }

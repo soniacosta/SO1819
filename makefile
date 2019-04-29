@@ -1,10 +1,13 @@
-make: compile run
+make: rm compile run
 
 compile: ma.c cv.c
-	gcc -Wall ma.c lib/auxiliar.c -o ma
-	gcc -Wall cv.c lib/auxiliar.c -o cv
+	gcc ma.c lib/auxiliar.c -o ma
+	gcc cv.c lib/auxiliar.c -o cv
+	gcc sv.c lib/auxiliar.c -o sv
 
 run:
-	rm artigos.txt strings.txt
 	./ma < test_ma
 	./cv < test_cv
+	
+rm:
+	rm -f artigos.txt strings.txt stocks.txt queue sv cv ma 

@@ -1,73 +1,69 @@
 #include "lib/auxiliar.h"
 
+#define N 512
+
 //Falta imprimir o que recebe do FIFO
 
 int main(){
 
   //criar um FIFO identificado pelo pid do processo:
   int i=getpid();
-  char nomefifo[8];
-  sprintf(nomefifo, "%d", i );//converte o int i numa string para nomear o fifo
+  char nomefifo[10];
+  sprintf(nomefifo, "./%07d", i );//converte o int i numa string para nomear o fifo
+  printf("%s\n", nomefifo);
   int fifo=mkfifo(nomefifo, 0666);
 
+  //fifo comum ao servidor e aos clientes
+  char * nomeFifoGeral = "./queue";
+  int fifoQ=mkfifo(nomeFifoGeral, 0666); //se existir nao faz nada
+
+  int fdQueue, fdFifo;
+
+  char* buffRead = malloc(N); //o buff dado ao read
+  char* palavras[8]; 
+  int numPalavrasInput = 0;
+  size_t tamLinha = 48;
+  char linha[tamLinha];
 
   while(1){
   //para ler varias linhas um readline:
-    /// 1. Ler uma linha do input(0) e guardar no buff
-    char buffRead[48]; //CONFIRMAR ESTES 48
-    ssize_t sread = readln(0, buffRead, 48);
-    if(sread <=0){break;}
+    /// 1. Ler uma linha do input(0) e guardar no buf
 
+      ssize_t sread = readln(0, buffRead, N);
+      if(sread <=0){break;}
 
-    /// 2. Escrever o que foi lido numa linha
+      numPalavrasInput = gatherArg(palavras,buffRead,sread);
+      switch (numPalavrasInput){
 
-    //definir linhas e preencher com espaços:
-    size_t tamLinha = 48;
-    char linha[tamLinha];
-    for(int i = 0; i<tamLinha-1;i++) {
-       linha[i]=' ';
-       linha[tamLinha-1] = '\n';
-     }
+        //instruçao que vem do ficheiro Artigos, para alterar stock
+        case (1):
+          sprintf( linha,"%s %s",nomefifo,palavras[0]);
+          //definir linhas e preencher com espaços:
+          break;
+
+        case (2):
+          sprintf(linha, "%s %s %s",nomefifo,palavras[0], palavras[1]);
+          break;
+
+        default:
+          printf("erro!\n");
+          break;
+
+      }
 
     //escrever a linha
-
-    /*
-    passar o que foi lido para uma linha(tam48)
-    [cv_pid(15) id(15) quantidade(15)]
-     */
-     sprintf(linha, "%s", nomefifo);
-
-
-     char campo[48];
-     int j=0;
-     int k=1;
-     for(int i=0; i<sread; i++) {
-
-       //processa palavra <id> ou <quantidade>
-       if (buffRead[i] == ' ' || buffRead[i] == '\n') {
-         if (j>0 && k<3) {
-           //campo ja existe
-           memcpy(linha+16*k, campo, j);
-           j=0;
-         }
-         k++;
-       }
-       else {
-         campo[j]=buffRead[i];
-         j++;
-       }
-     }
-
     /// 3. Enviar a linha para o fifo queue:
-    int fd=open("./queue", O_RDWR, 0666);
-          if(k<4){
-            write(fd, linha, 48);
-            write(1, linha, 48);
-          }
+      fdQueue = open(nomeFifoGeral, O_WRONLY);
+             
+      write(fdQueue, linha, 48);
+      write(1, linha, 48);
+      close(fdQueue);
+        
+      //fdFifo = open(nomefifo,O_RDONLY);
+      //read
 
-    close(fd);
+
   }
-
 
   return 0;
 }

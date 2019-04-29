@@ -11,22 +11,37 @@
 #include <errno.h>
 #include <string.h>
 
+
+
 size_t gatherArg(char* arg[], char* buffer, size_t size){
 	int i, j, l = 0, x;
+    int letra = 0;
 	for(i = 0; i < size ; i++){
 		arg[l] = (char*)malloc(32 *sizeof(char));
 		char *elem = (char*) arg[l];
+        letra = 0;
 		for(j = i ,x = 0; j < size && buffer[j] != ' ' && buffer[j] != '\n'; j++, x++){
+            letra ++; printf("%c\n", buffer[j]);
 			elem[x] = buffer[j];
 		}
-		elem[x] = '\0';
-		l++;
+
+        if(letra > 0) l++;
+		letra = 0;
+        elem[x] = '\0';
+		
 		i = j;
 	}
 	arg[l] = NULL;
 	return l;
 }
-
+/*
+int main(){
+    char* palavras[32];
+    char buff[10];
+    int s = read(0, buff, 10);
+    int i = gatherArg(palavras,buff,s);
+    printf("%d\n",i);
+}*/
 
 
 ssize_t readln(int fildes, void *buf, size_t nbyte){
