@@ -109,6 +109,9 @@ int main(int argc, char* argv[]){
                 write(fdFifoCv,linha2,32);
                 close(fdFifoCv);
                 break;
+
+            case(3):
+            break;
                     /*case(3):
                     
         
