@@ -32,6 +32,12 @@ int main(int argc, char* argv[]){
     char nomeFifoCv[8];
     char auxStock[15] , auxpreco[15];
 
+
+    //variaveis especificas para o case 3: (declarei aqui para o codigo ser mais legivel)
+    int novaquantidade=0;
+    int tamLinhaQuantidade=15;
+    char linhaquantidade[tamLinhaQuantidade];
+
    while(1){
 
         //ler do fifo geral
@@ -110,24 +116,47 @@ int main(int argc, char* argv[]){
                 close(fdFifoCv);
                 break;
 
-            case(3):
-            break;
-                    /*case(3):
-                    
-        
+            case(3)://como é igual para os dois casos vamos evitar repetir codigo:
+                sscanf(buffRead, "%s %d %d", nomeFifoCv, &id, &quantidade);
+                fdStock = open("./stocks.txt", O_RDWR , 0666);
+                if(fdStock == -1){
+                    perror(0);
+                    _exit(errno);
+                }
+                // ???? verificar se id existe
 
-            //quando quer adicionar artigos ao stock:
-            if(quantidade>0){
+                //ler a quantidade em stock daquele id:
+                lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
+                lidos = read(fdStock,auxStock,15);
 
+                //guardar na variavel stock o stock atual(antes da ediçao):
+                sscanf(auxStock,"%d",&stock);
 
-            }
+                novaquantidade = stock + quantidade;
+                
+                sprintf(linhaquantidade, "%15d", novaquantidade);
+                //write(1,linhaquantidade,strlen(linhaquantidade));
+                lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
+                write(fdStock, linhaquantidade,15);
+                close(fdStock);
 
-            //quando quer realizar uma venda:
-            else{
+                //quando quer realizar uma venda:
+                if(quantidade<0){
+                    // quantidade-refere-se ao que vamos adicionar ou retirar
+                    //alterar a quantidade:
+                }
 
-            }
-            }
-            */
+                //enviar para o Cliente a quantidade atual:
+                sprintf(nomeFifoCv,"%s",palavras[0]);
+                fdFifoCv = open(nomeFifoCv,O_WRONLY);
+                if(fdFifoCv == -1){
+                    perror(0);
+                    _exit(errno);
+                }
+                write(fdFifoCv,linhaquantidade,15);
+                close(fdFifoCv);
+                break;
+
             default:
                 printf("default 1: \n");
                 break;
