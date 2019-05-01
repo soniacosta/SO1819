@@ -11,3 +11,4 @@
 size_t gatherArg(char* arg[], char* buffer, size_t size);
 size_t vectorToString( char* arg[],char* string,int init, int end);
 ssize_t readln(int fildes, void *buf, size_t nbyte);
+int isNumber(char *string);

@@ -11,3 +11,8 @@ run:
 	
 rm:
 	rm -f artigos.txt strings.txt stocks.txt queue sv cv ma vendas.txt 00*
+
+git:
+	git add .
+	git commit -m "update"
+	git push

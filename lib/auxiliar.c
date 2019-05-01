@@ -75,4 +75,13 @@ size_t vectorToString( char* arg[], char* string, int init, int end){ /*init e e
     return j;
 }
 
-
+int isNumber(char *string){
+    int i = 0;
+    for(i = 0; string[i] != '\n'; i++){
+        if(string[i] < '0' || string[i] > '9'){ 
+        
+        return 0;
+        }
+    }
+    return 1;
+}
