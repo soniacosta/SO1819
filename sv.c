@@ -32,10 +32,9 @@ int main(int argc, char* argv[]){
     char nomeFifoCv[8];
     char auxStock[15] , auxpreco[15];
 
-    //variaveis para atualizar id:
+    //variaveis para verificar id:
     int numlseek=0;
     int idmax=0;
-
 
     //variaveis especificas para o case 3: (declarei aqui para o codigo ser mais legivel)
     int novaquantidade=0;
@@ -110,8 +109,19 @@ int main(int argc, char* argv[]){
                 //verificar se o id existe:
                 numlseek= lseek(fdStock, 0, SEEK_END);
                 idmax=numlseek/tamLinhaStocks;
-
-                if(idmax < id){ write(1,"error!",6); break; }
+                if(idmax < id){ close(fdStock); close(fdArtigos);
+                  write(1,"error!",6);
+                  //enviar o erro para o cliente
+                  sprintf(nomeFifoCv,"%s",palavras[0]);
+                  fdFifoCv = open(nomeFifoCv,O_WRONLY);
+                  if(fdFifoCv == -1){
+                      perror(0);
+                      _exit(errno);
+                  }
+                  write(fdFifoCv,"error!",6);
+                  close(fdFifoCv);
+                  break;
+                }
 
                 // TODO : verificar se o id existe
                 lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
@@ -147,12 +157,24 @@ int main(int argc, char* argv[]){
                     perror(0);
                     _exit(errno);
                 }
-
+                // ???? verificar se id existe
                 //verificar se o id existe:
                 numlseek= lseek(fdStock, 0, SEEK_END);
                 idmax=numlseek/tamLinhaStocks;
-                
-                if(idmax < id){ write(1,"error!",6); break;}
+                if(idmax < id){ close(fdStock); 
+                  write(1,"error!",6);
+                  //enviar o erro para o cliente
+                  sprintf(nomeFifoCv,"%s",palavras[0]);
+                  fdFifoCv = open(nomeFifoCv,O_WRONLY);
+                  if(fdFifoCv == -1){
+                      perror(0);
+                      _exit(errno);
+                  }
+                  write(fdFifoCv,"error!",6);
+                  close(fdFifoCv);
+                  break;
+                }
+
 
                 //ler a quantidade em stock daquele id:
                 lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
