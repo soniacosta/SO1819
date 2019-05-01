@@ -10,4 +10,4 @@ run:
 	./cv < test_cv
 	
 rm:
-	rm -f artigos.txt strings.txt stocks.txt queue sv cv ma vendas.txt
+	rm -f artigos.txt strings.txt stocks.txt queue sv cv ma vendas.txt 00*

@@ -35,7 +35,7 @@ int main(){
     /// 1. Ler uma linha do input(0) e guardar no buf
 
       ssize_t sread = readln(0, buffRead, N);
-      if(sread <=0){break;}
+      if(sread <=0){unlink(nomefifo); break;}
 
       numPalavrasInput = gatherArg(palavras,buffRead,sread);
       buffRead[0] = 0;
@@ -70,7 +70,7 @@ int main(){
       
     //4. receber do fifo a resposta
       fdFifo = open(nomefifo,O_RDONLY);
-      int lidos = read(fdFifo,buffRead,N);
+      int lidos = readln(fdFifo,buffRead,N);
       close(fdFifo);
       write(1,buffRead,lidos);
       

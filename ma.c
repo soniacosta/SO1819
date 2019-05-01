@@ -61,7 +61,7 @@ int main(int argc, char* argv[]){
     close(fd[1]);//0 e de leitura
     char buf[10];
 
-    int n = read(fd[0],buf, sizeof(buf)); //lê do pipe para o buf
+    int n = readln(fd[0],buf, sizeof(buf)); //lê do pipe para o buf
     if(n <=0){
         perror(0);
         _exit(errno);

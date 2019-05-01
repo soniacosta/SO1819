@@ -64,7 +64,7 @@ int main(int argc, char* argv[]){
             perror(0);
             _exit(errno);
         }
-        lidos = read(fdqueue,buffRead, N);
+        lidos = readln(fdqueue,buffRead, N);
         close(fdqueue);
         if(lidos <= 0) { perror(0); _exit(errno); break; }
             // fechar a queue para que os clientes possam escrever
@@ -126,14 +126,14 @@ int main(int argc, char* argv[]){
                 // TODO : verificar se o id existe
                 lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
                 
-                lidos = read(fdStock,auxStock,15);
+                lidos = readln(fdStock,auxStock,15);
                 close(fdStock);
                 sscanf(auxStock,"%d",&stock);
                 //write(1,auxStock,lidos);
                 //printf("offset : %d \n", 16+(47*id));
 
                 lseek(fdArtigos, 16+(47*id),SEEK_SET);
-                read(fdArtigos,auxpreco,15);
+                readln(fdArtigos,auxpreco,15);
                 close(fdArtigos);
 
                 //printf("stock %d\n", stock);
@@ -178,7 +178,7 @@ int main(int argc, char* argv[]){
 
                 //ler a quantidade em stock daquele id:
                 lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
-                lidos = read(fdStock,auxStock,15);
+                lidos = readln(fdStock,auxStock,15);
 
                 //guardar na variavel stock o stock atual(antes da ediçao):
                 sscanf(auxStock,"%d",&stock);
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]){
                   }
 
                   lseek(fdArtigos, 16+(47*id),SEEK_SET);
-                  read(fdArtigos,auxpreco,15);
+                  readln(fdArtigos,auxpreco,15);
                   close(fdArtigos);
                   preco=atoi(auxpreco);
                   quantidade=abs(quantidade);
@@ -245,7 +245,7 @@ int main(int argc, char* argv[]){
                 break;
 
         }
-       
+
         
    }
    free(buffRead);
