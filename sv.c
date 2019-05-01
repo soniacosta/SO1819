@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
     int tamLinhaStocks = 32;
     char linhastock[tamLinhaStocks];
     int  fdStock , fdArtigos, fdFifoCv;
-    int id, quantidade = 1234;
+    int id, quantidade, absQuantidade = 0;
     float preco = 0;
     int stock = 0;
     char linha2[tamLinhaStocks];
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]){
                 numlseek= lseek(fdStock, 0, SEEK_END);
                 idmax=numlseek/tamLinhaStocks;
                 if(idmax < id){ close(fdStock); close(fdArtigos);
-                  write(1,"error!",6);
+                  write(1,"error! id nao existe",6);
                   //enviar o erro para o cliente
                   sprintf(nomeFifoCv,"%s",palavras[0]);
                   fdFifoCv = open(nomeFifoCv,O_WRONLY);
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]){
                       perror(0);
                       _exit(errno);
                   }
-                  write(fdFifoCv,"error!",6);
+                  write(fdFifoCv,"error! nao existe id",6);
                   close(fdFifoCv);
                   break;
                 }
@@ -162,7 +162,7 @@ int main(int argc, char* argv[]){
                 numlseek= lseek(fdStock, 0, SEEK_END);
                 idmax=numlseek/tamLinhaStocks;
                 if(idmax < id){ close(fdStock); 
-                  write(1,"error!",6);
+                  //write(1,"error!",6);
                   //enviar o erro para o cliente
                   sprintf(nomeFifoCv,"%s",palavras[0]);
                   fdFifoCv = open(nomeFifoCv,O_WRONLY);
@@ -170,7 +170,7 @@ int main(int argc, char* argv[]){
                       perror(0);
                       _exit(errno);
                   }
-                  write(fdFifoCv,"error!",6);
+                  write(fdFifoCv,"error! id nao existe",20);
                   close(fdFifoCv);
                   break;
                 }
@@ -183,6 +183,8 @@ int main(int argc, char* argv[]){
                 //guardar na variavel stock o stock atual(antes da ediçao):
                 sscanf(auxStock,"%d",&stock);
 
+                
+
                 novaquantidade = stock + quantidade;
                 
                 sprintf(linhaquantidade, "%15d", novaquantidade);
@@ -193,7 +195,22 @@ int main(int argc, char* argv[]){
 
                 
                 //quando quer realizar uma venda:
-                if(quantidade<0){
+                if(quantidade < 0){
+                
+                    //verificar se o stock é maior que a quantidade pedida para venda
+                    if(stock < abs(quantidade)){ close(fdStock); 
+                        //write(1,"error! nao existe stock",6);
+                         //enviar o erro para o cliente
+                         sprintf(nomeFifoCv,"%s",palavras[0]);
+                         fdFifoCv = open(nomeFifoCv,O_WRONLY);
+                         if(fdFifoCv == -1){
+                             perror(0);
+                             _exit(errno);
+                         }
+                         write(fdFifoCv,"error! stock nao existe",23);
+                         close(fdFifoCv);
+                         break;
+                    }
 
                   //1.determinar o montante total através do ficheiro Artigos:
                   int fdArtigos = open("./artigos.txt", O_RDONLY , 0666);
@@ -205,14 +222,14 @@ int main(int argc, char* argv[]){
                   lseek(fdArtigos, 16+(47*id),SEEK_SET);
                   readln(fdArtigos,auxpreco,15);
                   close(fdArtigos);
-                  preco=atoi(auxpreco);
-                  quantidade=abs(quantidade);
-                  montante= quantidade*preco;
+                  preco=atof(auxpreco);
+                  printf("preco %f\n", preco);
+                  absQuantidade=abs(quantidade);
+                  montante = absQuantidade*preco;
 
 
                   //2.criar linhavendas:
-
-                  sprintf(linhavendas, "%15d %15d %15.2f\n", id, quantidade,montante);
+                  sprintf(linhavendas, "%15d %15d %15.2f\n", id, absQuantidade,montante);
                   int  fdVendas = open("./vendas.txt", O_RDWR | O_CREAT , 0666);
                   lseek(fdArtigos,0,SEEK_END);
                   write(fdVendas,linhavendas,tamLinhaVendas);
@@ -228,6 +245,14 @@ int main(int argc, char* argv[]){
                   */
 
                 }
+                //atualizar a quantidade em qualquer circunstancia
+                novaquantidade = stock + quantidade;
+                
+                sprintf(linhaquantidade, "%15d", novaquantidade);
+                //write(1,linhaquantidade,strlen(linhaquantidade));
+                lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
+                write(fdStock, linhaquantidade,15);
+                close(fdStock);
 
                 //enviar para o Cliente a quantidade atual:
                 sprintf(nomeFifoCv,"%s",palavras[0]);
