@@ -32,13 +32,31 @@ int main(int argc, char* argv[]){
     char nomeFifoCv[8];
     char auxStock[15] , auxpreco[15];
 
+    //variaveis para atualizar id:
+    int numlseek=0;
+    int idmax=0;
+
 
     //variaveis especificas para o case 3: (declarei aqui para o codigo ser mais legivel)
     int novaquantidade=0;
     int tamLinhaQuantidade=15;
     char linhaquantidade[tamLinhaQuantidade];
+    //quando quantidade < 0
+    int tamLinhaVendas=48;
+    char linhavendas[tamLinhaVendas];
+    float montante=0;
 
    while(1){
+        memset(buffRead, ' ',N);
+        memset(linhavendas, ' ',tamLinhaVendas);
+        memset(linhaquantidade, ' ',tamLinhaQuantidade);
+        memset(auxpreco , ' ',15);
+        memset(auxStock , ' ',15);
+        memset(linha2 , ' ',tamLinhaStocks);
+        memset(linhastock, ' ',tamLinhaStocks);
+        quantidade = 0;
+        id = 0;
+        fdFifoCv = 0;
 
         //ler do fifo geral
         fdqueue = open(nomeFifoGeral, O_RDONLY); 
@@ -89,6 +107,12 @@ int main(int argc, char* argv[]){
                     _exit(errno);
                 }
                 
+                //verificar se o id existe:
+                numlseek= lseek(fdStock, 0, SEEK_END);
+                idmax=numlseek/tamLinhaStocks;
+
+                if(idmax < id){ write(1,"error!",6); break; }
+
                 // TODO : verificar se o id existe
                 lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
                 
@@ -123,7 +147,12 @@ int main(int argc, char* argv[]){
                     perror(0);
                     _exit(errno);
                 }
-                // ???? verificar se id existe
+
+                //verificar se o id existe:
+                numlseek= lseek(fdStock, 0, SEEK_END);
+                idmax=numlseek/tamLinhaStocks;
+                
+                if(idmax < id){ write(1,"error!",6); break;}
 
                 //ler a quantidade em stock daquele id:
                 lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
@@ -140,10 +169,42 @@ int main(int argc, char* argv[]){
                 write(fdStock, linhaquantidade,15);
                 close(fdStock);
 
+                
                 //quando quer realizar uma venda:
                 if(quantidade<0){
-                    // quantidade-refere-se ao que vamos adicionar ou retirar
-                    //alterar a quantidade:
+
+                  //1.determinar o montante total através do ficheiro Artigos:
+                  int fdArtigos = open("./artigos.txt", O_RDONLY , 0666);
+                  if(fdArtigos == -1){
+                      perror(0);
+                      _exit(errno);
+                  }
+
+                  lseek(fdArtigos, 16+(47*id),SEEK_SET);
+                  read(fdArtigos,auxpreco,15);
+                  close(fdArtigos);
+                  preco=atoi(auxpreco);
+                  quantidade=abs(quantidade);
+                  montante= quantidade*preco;
+
+
+                  //2.criar linhavendas:
+
+                  sprintf(linhavendas, "%15d %15d %15.2f\n", id, quantidade,montante);
+                  int  fdVendas = open("./vendas.txt", O_RDWR | O_CREAT , 0666);
+                  lseek(fdArtigos,0,SEEK_END);
+                  write(fdVendas,linhavendas,tamLinhaVendas);
+                  write(1,linhavendas,tamLinhaVendas);
+                  close(fdVendas);
+                  
+                  /*
+                  Cada linha de vendas tem:
+                  1. data da venda ?????
+                  2. id - id recebido
+                  3. quantidade  - var quantidade recebida
+                  4. montante total - ir ao artigos e fazer a conta de quantidade*preço
+                  */
+
                 }
 
                 //enviar para o Cliente a quantidade atual:

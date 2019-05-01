@@ -6,6 +6,7 @@
 
 int main(){
 
+  char newline[1]; newline[0] = '\n';
   //criar um FIFO identificado pelo pid do processo:
   int i=getpid();
   char nomefifo[10];
@@ -25,7 +26,11 @@ int main(){
   size_t tamLinha = 48;
   char linha[tamLinha];
 
+  int flagErro;
+
   while(1){
+      flagErro = 0;
+      memset(buffRead, ' ',N);
   //para ler varias linhas um readline:
     /// 1. Ler uma linha do input(0) e guardar no buf
 
@@ -47,11 +52,13 @@ int main(){
           break;
 
         default:
+          flagErro = 1;
           printf("erro!\n");
           break;
 
       }
 
+      if(flagErro != 1){
     //escrever a linha
     /// 3. Enviar a linha para o fifo queue:
       fdQueue = open(nomeFifoGeral, O_WRONLY);
@@ -66,8 +73,10 @@ int main(){
       int lidos = read(fdFifo,buffRead,N);
       close(fdFifo);
       write(1,buffRead,lidos);
+      
+      write(1,newline,1);
       buffRead[0] = 0;
-
+      }
   }
   free(buffRead);
   return 0;
