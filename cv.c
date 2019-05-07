@@ -7,11 +7,11 @@
 int main(){
 
   char newline[1]; newline[0] = '\n';
+  
   //criar um FIFO identificado pelo pid do processo:
   int i=getpid();
   char nomefifo[10];
-  sprintf(nomefifo, "./%07d", i );//converte o int i numa string para nomear o fifo
-  //printf("%s\n", nomefifo);
+  sprintf(nomefifo, "./%07d", i ); //converte o int i numa string para nomear o fifo
   int fifo=mkfifo(nomefifo, 0666);
 
   //fifo comum ao servidor e aos clientes
@@ -29,58 +29,55 @@ int main(){
   int flagErro;
 
   while(1){
-      flagErro = 0;
-      memset(buffRead, ' ',N);
+    flagErro = 0;
+    memset(buffRead, ' ',N);
+	
+	
   //para ler varias linhas um readline:
     /// 1. Ler uma linha do input(0) e guardar no buf
 
-      ssize_t sread = readln(0, buffRead, N);
-      if(sread <=0){unlink(nomefifo); break;}
+    ssize_t sread = readln(0, buffRead, N);
+    if(sread <=0){
+		unlink(nomefifo); 
+		break;
+	}
       
-      if(isNumber(buffRead) > 0){
+	numPalavrasInput = gatherArg(palavras,buffRead,sread);
+	buffRead[0] = 0;
+	switch (numPalavrasInput){		  //instruçao que vem do ficheiro Artigos, para alterar stock
+		
+		case (1):
+		if(isNumber(palavras[0]) != 0 ) printf("nao é numero %s \n", palavras[0] );
+		sprintf( linha,"%s %s",nomefifo,palavras[0]);
+		//definir linhas e preencher com espaços:
+		break;		  
+		
+		case (2):
+		sprintf(linha, "%s %s %s",nomefifo,palavras[0], palavras[1]);
+		break;		  
+		
+		default:
+		flagErro = 1;
+		printf("erro!\n");
+		break;		}
 
-          numPalavrasInput = gatherArg(palavras,buffRead,sread);
-          buffRead[0] = 0;
-          switch (numPalavrasInput){
+	if(flagErro != 1){ //se a flag estiver a 1 significa que não há boa informação e por isso nao deve escrever para o fifo
+		
+		/// 3. Enviar a linha para o fifo queue:
+		fdQueue = open(nomeFifoGeral, O_WRONLY);
 
-            //instruçao que vem do ficheiro Artigos, para alterar stock
-            case (1):
-              sprintf( linha,"%s %s",nomefifo,palavras[0]);
-              //definir linhas e preencher com espaços:
-              break;
+		write(fdQueue, linha, strlen(linha));
+		close(fdQueue);
+		
+		//4. receber do fifo a resposta
+		fdFifo = open(nomefifo,O_RDONLY);
+		int lidos = readln(fdFifo,buffRead,N);
+		close(fdFifo);
+		write(1,buffRead,lidos);
 
-            case (2):
-              sprintf(linha, "%s %s %s",nomefifo,palavras[0], palavras[1]);
-              break;
+		write(1,newline,1);
+		}
 
-            default:
-              flagErro = 1;
-              printf("erro!\n");
-              break;
-
-          }
-
-          if(flagErro != 1){
-        //escrever a linha
-        /// 3. Enviar a linha para o fifo queue:
-          fdQueue = open(nomeFifoGeral, O_WRONLY);
-                
-          write(fdQueue, linha, strlen(linha));
-          //write(1, linha, strlen(linha));
-          close(fdQueue);
-          linha[0] = 0;
-          
-        //4. receber do fifo a resposta
-          fdFifo = open(nomefifo,O_RDONLY);
-          int lidos = readln(fdFifo,buffRead,N);
-          close(fdFifo);
-          write(1,buffRead,lidos);
-          
-          write(1,newline,1);
-          buffRead[0] = 0;
-          }
-
-      }else{ write(1,"errrro\n",7);}
 
   }
   free(buffRead);

@@ -83,78 +83,89 @@ int main(int argc, char* argv[]){
 
         numPalavrasInput = gatherArg(palavras,buffRead,lidos);
         prog = buffRead[0];
-        switch (prog){
+        if(numPalavrasInput == 3 || prog == 'a'){
+            
+            switch (prog){
 
-            case 'i'://escrever artigo
-                /*
-                *
-                * Inserir novo artigo
-                */
-                nome = malloc(lidos * sizeof(char));
-                tamNome = vectorToString(palavras, nome, 1, numPalavrasInput-2);
-                sprintf(linha,"%14d %15s %15d\n", wcArtigos, palavras[numPalavrasInput-1], numOff_setStrings);
-                write(fdStrings,nome,tamNome);
+                case 'i'://escrever artigo
+                    /*
+                    *
+                    * Inserir novo artigo
+                    */
+                    nome = malloc(lidos * sizeof(char));
+                    tamNome = vectorToString(palavras, nome, 1, numPalavrasInput-2);
+                    sprintf(linha,"%14d %15s %15d\n", wcArtigos, palavras[numPalavrasInput-1], numOff_setStrings);
+                    write(fdStrings,nome,tamNome);
 
-                /*imprimir o valor do idArtigo para o terminal*/
-                sprintf(tmp,"%d", wcArtigos);
-                /**/
-                write(fdArtigos,linha,tamLinhaArtigos-1);
-                numOff_setStrings+=tamNome;
+                    /*imprimir o valor do idArtigo para o terminal*/
+                    sprintf(tmp,"%0d", wcArtigos);
+                    /**/
+                    write(fdArtigos,linha,tamLinhaArtigos-1);
+                    numOff_setStrings+=tamNome;
 
-                //enviar informaçao de alterar stock para a queue
-                //printf("%d %s", sizeof(tmp),tmp);
-                fdqueue=open(nomeFifo, O_WRONLY);
-                write(fdqueue, tmp, sizeof(tmp));
-                close(fdqueue);
-                write(1, tmp, sizeof(wcArtigos));
-                write(1,"\n",1);
-                wcArtigos++;
+                    //enviar informaçao de alterar stock para a queue
+                    //printf("%d %s", sizeof(tmp),tmp);
+                    fdqueue=open(nomeFifo, O_WRONLY);
+                    write(fdqueue, tmp, sizeof(tmp));
+                    close(fdqueue);
+                    write(1, tmp, sizeof(wcArtigos));
+                    write(1,"\n",1);
+                    wcArtigos++;
 
-                break;
+                    break;
 
-            case 'n':
+                case 'n':
 
-                /*
-                *
-                * Alterar nome artigo
-                */
-                nome = malloc(lidos * sizeof(char));
-                tamNome = vectorToString(palavras, nome, 2, numPalavrasInput-1);
-                sprintf(bitsCampoLinha,"%14d\n", numOff_setStrings); // guardar só o campo refNome com o novo valor
-                write(fdStrings,nome,tamNome);
-                numOff_setStrings+=tamNome;
-                idArtigo = atoi(palavras[1]); //ler o id
-                lseek(fdArtigos,32+(47*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linha+bits dos outros campos deste artigo
-                write(fdArtigos,bitsCampoLinha,15); //escrever só o campo
-                lseek(fdArtigos,0,SEEK_END); //repor o off_set no fim
-                break;
+                    /*
+                    *
+                    * Alterar nome artigo
+                    */
+                    nome = malloc(lidos * sizeof(char));
+                    tamNome = vectorToString(palavras, nome, 2, numPalavrasInput-1);
+                    sprintf(bitsCampoLinha,"%14d\n", numOff_setStrings); // guardar só o campo refNome com o novo valor
+                    write(fdStrings,nome,tamNome);
+                    numOff_setStrings+=tamNome;
+                    idArtigo = atoi(palavras[1]); //ler o id
+                    lseek(fdArtigos,32+(47*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linha+bits dos outros campos deste artigo
+                    write(fdArtigos,bitsCampoLinha,15); //escrever só o campo
+                    lseek(fdArtigos,0,SEEK_END); //repor o off_set no fim
+                    free(nome);
+                    break;
 
-            case 'p':
+                case 'p':
 
-                /*
-                *
-                * Inserir preco artigo
-                */
-                novoPreco = malloc(lidos * sizeof(char));
-                tamNome = vectorToString(palavras, novoPreco, 2, numPalavrasInput-1); //a variavel tamNome é reutilizada no mesmo contexto
-                sprintf(bitsCampoLinha,"%15s", novoPreco); // guardar só o campo preço com o novo valor
-                idArtigo = atoi(palavras[1]); //ler o id
-                lseek(fdArtigos,16+(47*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linhabits dos outros campos deste artigo
-                write(fdArtigos,bitsCampoLinha,14); //escrever só o campo
-                lseek(fdArtigos,0,SEEK_END); //repor o off_set no fim
-                break;
+                    /*
+                    *
+                    * Inserir preco artigo
+                    */
+                    novoPreco = malloc(lidos * sizeof(char));
+                    tamNome = vectorToString(palavras, novoPreco, 2, numPalavrasInput-1); //a variavel tamNome é reutilizada no mesmo contexto
+                    sprintf(bitsCampoLinha,"%15s", novoPreco); // guardar só o campo preço com o novo valor
+                    idArtigo = atoi(palavras[1]); //ler o id
+                    lseek(fdArtigos,16+(47*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linhabits dos outros campos deste artigo
+                    write(fdArtigos,bitsCampoLinha,14); //escrever só o campo
+                    lseek(fdArtigos,0,SEEK_END); //repor o off_set no fim
+                     free(novoPreco);
+                    break;
 
-            default:
-                break;
+                case 'a':
+                    fdqueue=open(nomeFifo, O_WRONLY);
+                    write(fdqueue, "a", 1);
+                    close(fdqueue);
+                    write(1, "Agregacao iniciada.",18);
+                    write(1,"\n",1);
+                    break;
+                
+                default:
+                    break;
+            }
         }
-
 
     }
     close(fdStrings);
     close(fdArtigos);
     free(buffRead);
-    free(nome);
-    free(novoPreco);
+    
     return 0;
 
 }

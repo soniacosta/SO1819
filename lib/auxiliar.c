@@ -8,6 +8,8 @@
 #include <ctype.h>
 #include <time.h>
 #include <signal.h>
+#include <signal.h>
+#include <stdio.h>
 #include <errno.h>
 #include <string.h>
 
@@ -17,7 +19,7 @@ size_t gatherArg(char* arg[], char* buffer, size_t size){
 	int i, j, l = 0, x;
     int letra = 0;
 	for(i = 0; i < size ; i++){
-		arg[l] = (char*)malloc(32 *sizeof(char));
+		arg[l] = (char*)malloc(90 *sizeof(char));
 		char *elem = (char*) arg[l];
         letra = 0;
 		for(j = i ,x = 0; j < size && buffer[j] != ' ' && buffer[j] != '\n'; j++, x++){
@@ -77,11 +79,53 @@ size_t vectorToString( char* arg[], char* string, int init, int end){ /*init e e
 
 int isNumber(char *string){
     int i = 0;
-    for(i = 0; string[i] != '\n'; i++){
-        if(string[i] < '0' || string[i] > '9'){ 
+    for(i = 0; string[i] != '\n' && string[i] != '\0'; i++){
+        //printf("o caracter é |%c|\n", string[i]);
+        
+        if(!isdigit(string[i])){ 
         
         return 0;
         }
     }
     return 1;
+}
+
+int isStock(char *string){
+    int i = 0;
+    for(i = 0; string[i] != '\n' && string[i] != '\0'; i++){
+        //printf("o caracter é |%c|\n", string[i]);
+        
+        if(!isdigit(string[i] || string[i] != '-')){ 
+        
+        return 0;
+        }
+    }
+    return 1;
+}
+
+
+//Função: Escrever para o Fifo
+int escreverFifo(char* nome, char* frase){
+    int fdFifoCv = open(nome,O_WRONLY);
+    if(fdFifoCv == -1){
+        perror(0);
+        _exit(errno);
+    }
+    write(fdFifoCv,frase,strlen(frase));
+    close(fdFifoCv);
+    return 1;
+}
+
+void formatTime(char* buffer){
+
+     //2019-03-29T14:23:56
+    time_t timer = time(NULL);
+    char* timeBuff; /*= ctime(&timer);*/
+    struct tm * timeinfo;
+    
+    time ( &timer );
+    timeinfo = localtime ( &timer );
+
+    strftime (buffer,22,"./%Y-%m-%dT%H:%M:%S",timeinfo);
+    
 }
