@@ -27,7 +27,7 @@ int main(){
   char linha[tamLinha];
 
   int flagErro;
-
+	i = 0;
   while(1){
     flagErro = 0;
     memset(buffRead, ' ',N);
@@ -35,8 +35,9 @@ int main(){
 	
   //para ler varias linhas um readline:
     /// 1. Ler uma linha do input(0) e guardar no buf
-
+	
     ssize_t sread = readln(0, buffRead, N);
+	//printf("leu %d", i++);
     if(sread <=0){
 		//unlink(nomefifo); 
 		break;
@@ -76,6 +77,12 @@ int main(){
 		
 		//4. receber do fifo a resposta
 		fdFifo = open(nomefifo,O_RDONLY);
+		if(fdFifo <=0){
+			write(1,"erro fdFifo",11);
+			perror(0);
+			_exit(errno);
+        }
+		
 		int lidos = readln(fdFifo,buffRead,N);
 		close(fdFifo);
 		write(1,buffRead,lidos);

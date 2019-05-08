@@ -106,6 +106,7 @@ int isStock(char *string){
 
 //Função: Escrever para o Fifo
 int escreverFifo(char* nome, char* frase){
+    //printf("escreverfifo %s\n", frase);
     int fdFifoCv = open(nome,O_WRONLY);
     if(fdFifoCv == -1){
         perror(0);

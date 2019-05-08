@@ -77,6 +77,7 @@ int main(int argc, char* argv[]){
     char tmp[16]={0x0};
 
     while(1){
+        memset(buffRead, ' ',N);
 
         lidos = readln(0, buffRead, N);
         if(lidos <= 0) break;
@@ -152,8 +153,8 @@ int main(int argc, char* argv[]){
                     break;
 
                 case 'a':
-
-                    if(strlen(buffRead) > 2) break;
+                    if(lidos > 2) break;
+                    write(2,"asss",4);
                     fdqueue=open(nomeFifo, O_WRONLY);
                     write(fdqueue, "a", 1);
                     close(fdqueue);

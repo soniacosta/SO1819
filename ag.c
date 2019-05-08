@@ -23,7 +23,9 @@ int contaVendas(int tamBuff,char* buff , int totArtigos) { //recebe o buff lido 
     int count_preco = 0;
     //int totArtigos = maiorID("vendas.txt");
     int info[totArtigos][2];
-    memset(info,0,sizeof(int) * totArtigos * 2);
+    for(int i = 0; i<totArtigos;i++){
+        memset(info[i],0,2);
+    }
 
     int lidos = 0;
     int tamLinha = 48;

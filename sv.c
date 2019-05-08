@@ -101,7 +101,7 @@ int main(int argc, char* argv[]){
                     close(fdStock);
                 }else{
                     if(buffRead[0] == 'a'){
-
+                        write(2,"aaaa",4);
                         if(!fork()){ //filho
 
                             execl("./ag","ag",(char*)0); //mandamos executar o ag que trata da agregaçao sozinho
@@ -214,32 +214,23 @@ int main(int argc, char* argv[]){
 
                 //guardar na variavel stock o stock atual(antes da ediçao):
                 sscanf(auxStock,"%d",&stock);
-
                 //verificar se é venda e se há stock
-                if(quantidade < 0 || stock < abs(quantidade)){
+                if(quantidade < 0 && stock < abs(quantidade)){
             
                     close(fdStock); 
-                    //write(1,"error! nao existe stock",6);
                      //enviar o erro para o cliente
                     sprintf(nomeFifoCv,"%s",palavras[0]);
                     escreverFifo(nomeFifoCv, "error! stock nao existe");
-                     /*fdFifoCv = open(nomeFifoCv,O_WRONLY);
-                     if(fdFifoCv == -1){
-                         write(1,"erro fdfifocv",13);
-                         perror(0);
-                         _exit(errno);
-                     }
-                     write(fdFifoCv,"error! stock nao existe",23);
-                     close(fdFifoCv);*/
                      
                 }else{
                 
                     novaquantidade = stock + quantidade;
 
                     sprintf(linhaquantidade, "%15d", novaquantidade);
-                    //write(1,linhaquantidade,strlen(linhaquantidade));
+                    
                     lseek(fdStock, id*tamLinhaStocks+16,SEEK_SET);
                     write(fdStock, linhaquantidade,15);
+                    
                     close(fdStock);
 
                     //1.determinar o montante total através do ficheiro Artigos:
@@ -255,34 +246,29 @@ int main(int argc, char* argv[]){
                     close(fdArtigos);
                     preco=atoi(auxpreco);
 
-                    absQuantidade = abs(quantidade);
-                    montante = absQuantidade*preco;
-
-                    //2.criar linhavendas:
-                    sprintf(linhavendas, "%15d %15d %15d\n", id, absQuantidade,montante);
-                    int fdVendas = open("./vendas.txt", O_RDWR | O_CREAT , 0666);
-                    if(fdVendas == -1){
-                          write(1,"erro fdvendas",13);
-                          perror(0);
-                          _exit(errno);
-                    }
-                    lseek(fdArtigos,0,SEEK_END);
-                    write(fdVendas,linhavendas,tamLinhaVendas);
-                    //write(1,linhavendas,tamLinhaVendas);
-                    close(fdVendas);
-
                     //enviar para o Cliente a quantidade atual:
                     sprintf(nomeFifoCv,"%s",palavras[0]);
                     escreverFifo(nomeFifoCv, linhaquantidade);
+                    
+                    if(quantidade < 0){
+                        absQuantidade = abs(quantidade);
+                        montante = absQuantidade*preco;
 
-                    /*fdFifoCv = open(nomeFifoCv,O_WRONLY);
-                    if(fdFifoCv == -1){
-                        write(1,"erro fdfifocv",13);
-                        perror(0);
-                        _exit(errno);
+                        //2.criar linhavendas:
+
+                        sprintf(linhavendas, "%15d %15d %15d\n", id, absQuantidade,montante);
+                        int fdVendas = open("./vendas.txt", O_RDWR | O_CREAT , 0666);
+                        if(fdVendas == -1){
+                              write(2,"erro fdvendas",13);
+                              perror(0);
+                              _exit(errno);
+                        }
+                        lseek(fdArtigos,0,SEEK_END);
+                        write(fdVendas,linhavendas,tamLinhaVendas);
+                        close(fdVendas);
+
                     }
-                    write(fdFifoCv,linhaquantidade,15);
-                    close(fdFifoCv);*/
+
                 }
                     break;
 
