@@ -12,11 +12,11 @@ int main(){
   int i=getpid();
   char nomefifo[10];
   sprintf(nomefifo, "./%07d", i ); //converte o int i numa string para nomear o fifo
-  int fifo=mkfifo(nomefifo, 0666);
+  int fifo=mkfifo(nomefifo, 0777);
 
   //fifo comum ao servidor e aos clientes
   char * nomeFifoGeral = "./queue";
-  int fifoQ=mkfifo(nomeFifoGeral, 0666); //se existir nao faz nada
+  //int fifoQ=mkfifo(nomeFifoGeral, 0777); //se existir nao faz nada
 
   int fdQueue, fdFifo;
 
@@ -38,7 +38,7 @@ int main(){
 
     ssize_t sread = readln(0, buffRead, N);
     if(sread <=0){
-		unlink(nomefifo); 
+		//unlink(nomefifo); 
 		break;
 	}
       
@@ -47,7 +47,7 @@ int main(){
 	switch (numPalavrasInput){		  //instruçao que vem do ficheiro Artigos, para alterar stock
 		
 		case (1):
-		if(isNumber(palavras[0]) != 0 ) printf("nao é numero %s \n", palavras[0] );
+		//if(isNumber(palavras[0]) != 0 ) printf("nao é numero %s \n", palavras[0] );
 		sprintf( linha,"%s %s",nomefifo,palavras[0]);
 		//definir linhas e preencher com espaços:
 		break;		  
@@ -64,10 +64,15 @@ int main(){
 	if(flagErro != 1){ //se a flag estiver a 1 significa que não há boa informação e por isso nao deve escrever para o fifo
 		
 		/// 3. Enviar a linha para o fifo queue:
+		//write(1, "entraaa", 7);
+		escreverFifo(nomeFifoGeral,linha);
+		/*
 		fdQueue = open(nomeFifoGeral, O_WRONLY);
-
+		//write(1, "abriu fifo geral", 16);
 		write(fdQueue, linha, strlen(linha));
-		close(fdQueue);
+		//write(1,"escreveu na queue",17);
+		close(fdQueue);*/
+		//write(1,"fechou a queue", 14);
 		
 		//4. receber do fifo a resposta
 		fdFifo = open(nomefifo,O_RDONLY);

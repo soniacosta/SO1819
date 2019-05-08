@@ -25,8 +25,6 @@ int contaVendas(int tamBuff,char* buff , int totArtigos) { //recebe o buff lido 
     int info[totArtigos][2];
     memset(info,0,sizeof(int) * totArtigos * 2);
 
-    
-
     int lidos = 0;
     int tamLinha = 48;
     int index = 0;
@@ -82,13 +80,15 @@ int main(){
     //ver qual o fim da ultima agregaçao se existente
     int fdAgregs = open("./agregs.txt", O_CREAT | O_RDWR, 0666);
     numBits = lseek(fdAgregs, 0 , SEEK_END);
-    if (numBits != 0){
+    
+    printf("passo 1 %d numbits  \n",numBits);
+    if (numBits > 0){
 
         buff = malloc(sizeof(char)*numBits);
-        lseek(fdAgregs,0, SEEK_SET);
+        lseek(fdAgregs, 0 , SEEK_SET);
         lidos = read(fdAgregs, buff,numBits);
 
-        if(lidos <0){
+        if(lidos < 0){
             perror(0);
             _exit(errno);
         }
@@ -96,13 +96,13 @@ int main(){
     }
 
     //abrir o ficheiro de vendas, e ler desde o offset da ultima agregacao ate ao fim
-    int fdVendas = open("./vendas.txt",O_RDONLY);
+    int fdVendas = open("./vendas.txt",O_RDONLY | O_CREAT);
     offset_end = lseek(fdVendas, 0, SEEK_END);
-
+    printf("passo 2 %d offsetend vendas  \n",offset_end);
     numBits = offset_end - offset_init;
-
+    printf("passo 3 %d numbits  \n",numBits);
     //printf("numBits %d offset end %d\n", numBits, offset_end);
-    if(numBits != 0){
+    if(numBits > 0){
         
         buff = malloc(numBits);
         lseek(fdVendas,offset_init,SEEK_SET);
@@ -130,7 +130,6 @@ int main(){
 
         close(fd[1]);//0 e de leitura
         char buf[10];
-
         int n = read(fd[0],buf, sizeof(buf)); //lê do pipe para o buf
         if(n <=0){
             perror(0);
@@ -140,9 +139,8 @@ int main(){
 
         int wcArtigos = 0;
         sscanf(buf, "%d",&wcArtigos); //do buf queremos só a primeira parte (ver wc -l)
-        
+        printf("buf %s\n", buff);
         /***************************************************************************************************/
-        printf("%d numbits  \n",numBits);
         contaVendas(numBits, buff, wcArtigos);
 
     }else{close(fdVendas);}

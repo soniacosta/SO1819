@@ -94,6 +94,7 @@ int main(int argc, char* argv[]){
                     */
                     nome = malloc(lidos * sizeof(char));
                     tamNome = vectorToString(palavras, nome, 1, numPalavrasInput-2);
+                    if(!isNumber(palavras[numPalavrasInput-1])) break;
                     sprintf(linha,"%14d %15s %15d\n", wcArtigos, palavras[numPalavrasInput-1], numOff_setStrings);
                     write(fdStrings,nome,tamNome);
 
@@ -115,17 +116,19 @@ int main(int argc, char* argv[]){
                     break;
 
                 case 'n':
-
                     /*
                     *
                     * Alterar nome artigo
                     */
                     nome = malloc(lidos * sizeof(char));
+                    
+                    idArtigo = atoi(palavras[1]); //ler o id
+                    if(!isNumber(palavras[1]) || wcArtigos-1 < idArtigo) break;
                     tamNome = vectorToString(palavras, nome, 2, numPalavrasInput-1);
+
                     sprintf(bitsCampoLinha,"%14d\n", numOff_setStrings); // guardar só o campo refNome com o novo valor
                     write(fdStrings,nome,tamNome);
                     numOff_setStrings+=tamNome;
-                    idArtigo = atoi(palavras[1]); //ler o id
                     lseek(fdArtigos,32+(47*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linha+bits dos outros campos deste artigo
                     write(fdArtigos,bitsCampoLinha,15); //escrever só o campo
                     lseek(fdArtigos,0,SEEK_END); //repor o off_set no fim
@@ -133,26 +136,28 @@ int main(int argc, char* argv[]){
                     break;
 
                 case 'p':
-
                     /*
                     *
                     * Inserir preco artigo
                     */
                     novoPreco = malloc(lidos * sizeof(char));
+                    idArtigo = atoi(palavras[1]); //ler o id
+                    if(!isNumber(palavras[1]) || !isNumber(palavras[numPalavrasInput-1]) || wcArtigos-1 < idArtigo) break;
                     tamNome = vectorToString(palavras, novoPreco, 2, numPalavrasInput-1); //a variavel tamNome é reutilizada no mesmo contexto
                     sprintf(bitsCampoLinha,"%15s", novoPreco); // guardar só o campo preço com o novo valor
-                    idArtigo = atoi(palavras[1]); //ler o id
                     lseek(fdArtigos,16+(47*idArtigo),SEEK_SET); //mudar o off_set para o inicio da linhabits dos outros campos deste artigo
                     write(fdArtigos,bitsCampoLinha,14); //escrever só o campo
                     lseek(fdArtigos,0,SEEK_END); //repor o off_set no fim
-                     free(novoPreco);
+                    free(novoPreco);
                     break;
 
                 case 'a':
+
+                    if(strlen(buffRead) > 2) break;
                     fdqueue=open(nomeFifo, O_WRONLY);
                     write(fdqueue, "a", 1);
                     close(fdqueue);
-                    write(1, "Agregacao iniciada.",18);
+                    //write(1, "Agregacao iniciada.",18);
                     write(1,"\n",1);
                     break;
                 
