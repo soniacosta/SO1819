@@ -48,12 +48,14 @@ int main(){
 	switch (numPalavrasInput){		  //instruçao que vem do ficheiro Artigos, para alterar stock
 		
 		case (1):
-		//if(isNumber(palavras[0]) != 0 ) printf("nao é numero %s \n", palavras[0] );
+
+		if(!isNumber(palavras[0])){flagErro=1;}
 		sprintf( linha,"%s %s",nomefifo,palavras[0]);
 		//definir linhas e preencher com espaços:
 		break;		  
 		
 		case (2):
+		if(!isNumber(palavras[0]) || !isNumber(palavras[1])) {flagErro=1;}
 		sprintf(linha, "%s %s %s",nomefifo,palavras[0], palavras[1]);
 		break;		  
 		

@@ -23,8 +23,9 @@ int contaVendas(int tamBuff,char* buff , int totArtigos) { //recebe o buff lido 
     int count_preco = 0;
     //int totArtigos = maiorID("vendas.txt");
     int info[totArtigos][2];
-    for(int i = 0; i<totArtigos;i++){
-        memset(info[i],0,2);
+    for(int i = 0; i < totArtigos;i++){
+        info[i][0]= 0;
+        info[i][1]= 0;
     }
 
     int lidos = 0;
@@ -34,33 +35,26 @@ int contaVendas(int tamBuff,char* buff , int totArtigos) { //recebe o buff lido 
     while(1){
         //printf("buff+index%s\n", buff+index);
         sscanf(&buff[index], "%d %d %d", &id, &qtd, &preco);
-        info[id][0]+=qtd;
-        info[id][1]+=preco;
+        
+        info[id][0] = info[id][0] + qtd;
+        info[id][1] = info[id][1] + preco;
         
         index += tamLinha ;
             //printf("fim index %d",index);
-        if(index > tamBuff){
+        if(index >= tamBuff){
             break;
         }
+        
     }
-    
-        for(int i = 0;i < totArtigos;i++){
-            if(info[i][0]){
-              printf("%d %d %d\n",i,info[i][0],info[i][1]);
-
-            }
-        }
-    
     
     char* buffer = malloc(sizeof(char)*22);;
     formatTime(buffer);
-    printf("%s\n",buffer);
-
+    
     int fdAgreg = open(buffer, O_CREAT | O_WRONLY, 0666);
     int tamLinhaVendas=48;
     char linhavendas[tamLinhaVendas];
 
-    for(int i=0; i<=totArtigos; i++) {
+    for(int i=0; i<totArtigos; i++) {
         if(info[i][0] !=0 ){
             sprintf(linhavendas, "%15d %15d %15d\n", i, info[i][0],info[i][1]);
             
@@ -83,7 +77,7 @@ int main(){
     int fdAgregs = open("./agregs.txt", O_CREAT | O_RDWR, 0666);
     numBits = lseek(fdAgregs, 0 , SEEK_END);
     
-    printf("passo 1 %d numbits  \n",numBits);
+    
     if (numBits > 0){
 
         buff = malloc(sizeof(char)*numBits);
@@ -100,9 +94,9 @@ int main(){
     //abrir o ficheiro de vendas, e ler desde o offset da ultima agregacao ate ao fim
     int fdVendas = open("./vendas.txt",O_RDONLY | O_CREAT);
     offset_end = lseek(fdVendas, 0, SEEK_END);
-    printf("passo 2 %d offsetend vendas  \n",offset_end);
+    
     numBits = offset_end - offset_init;
-    printf("passo 3 %d numbits  \n",numBits);
+    
     //printf("numBits %d offset end %d\n", numBits, offset_end);
     if(numBits > 0){
         
@@ -141,7 +135,7 @@ int main(){
 
         int wcArtigos = 0;
         sscanf(buf, "%d",&wcArtigos); //do buf queremos só a primeira parte (ver wc -l)
-        printf("buf %s\n", buff);
+        
         /***************************************************************************************************/
         contaVendas(numBits, buff, wcArtigos);
 

@@ -84,7 +84,7 @@ int main(int argc, char* argv[]){
 
         numPalavrasInput = gatherArg(palavras,buffRead,lidos);
         prog = buffRead[0];
-        if(numPalavrasInput == 3 || prog == 'a'){
+        if(numPalavrasInput >= 3 || prog == 'a'){
             
             switch (prog){
 
