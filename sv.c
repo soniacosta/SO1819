@@ -6,7 +6,7 @@ volatile  int flag_ctrl_c;
 
 void int_handler(){
     flag_ctrl_c = 0;
-    write(1,"alaakbar",8);
+    write(1,"\nA terminar",11);
 }
 
 int main(int argc, char* argv[]){
@@ -106,7 +106,7 @@ while(flag_ctrl_c){
                     close(fdStock);
                 }else{
                     if(buffRead[0] == 'a'){
-                        write(2,"aaaa",4);
+                        write(2,"Agregacao iniciada. ",20);
                         if(!fork()){ //filho
 
                             execl("./ag","ag",(char*)0); //mandamos executar o ag que trata da agregaçao sozinho
@@ -199,7 +199,7 @@ while(flag_ctrl_c){
                 //verificar se o id existe:
                 numlseek = lseek(fdStock, 0, SEEK_END);
                 idmax = numlseek/tamLinhaStocks;
-                if(idmax < id){ 
+                if(idmax <= id){ 
                     close(fdStock); 
                     //write(1,"error!",6);
                     //enviar o erro para o cliente
@@ -292,9 +292,10 @@ while(flag_ctrl_c){
 
     close(fdqueue);
 }
+   write(1," \n",2);
+   unlink(nomeFifoGeral);
    perror(strerror(errno)); 
     //break;
-   write(1,"aaaaaaa",7);
    free(buffRead);
    return 0;
 }

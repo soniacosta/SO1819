@@ -154,7 +154,7 @@ int main(int argc, char* argv[]){
 
                 case 'a':
                     if(lidos > 2) break;
-                    write(2,"asss",4);
+                    
                     fdqueue=open(nomeFifo, O_WRONLY);
                     write(fdqueue, "a", 1);
                     close(fdqueue);

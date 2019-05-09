@@ -140,5 +140,6 @@ int main(){
         contaVendas(numBits, buff, wcArtigos);
 
     }else{close(fdVendas);}
+    write(1,"Agregação Terminada. ",21);
     return 0; 
 }

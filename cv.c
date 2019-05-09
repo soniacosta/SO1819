@@ -40,7 +40,7 @@ while(1){
     ssize_t sread = readln(0, buffRead, N);
 	//printf("leu %d", i++);
     if(sread <=0){
-		write(1,"erro sread cv",14);
+		//write(1,"erro sread cv",14);
 		perror(0);
 		_exit(errno);
 		//unlink(nomefifo); 
@@ -77,7 +77,7 @@ while(1){
 		//4. receber do fifo a resposta
 		fdFifo = open(nomefifo,O_RDONLY);
 		if(fdFifo <=0){
-			write(1,"erro fdFifo cv",11);
+			//write(1,"erro fdFifo cv",11);
 			perror(0);
 			_exit(errno);
         }
@@ -92,6 +92,7 @@ while(1){
 
   }}
   close(fdqueue);
+  unlink(nomefifo);
   free(buffRead);
   return 0;
 }
