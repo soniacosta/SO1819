@@ -139,7 +139,7 @@ while(flag_ctrl_c){
                 numlseek = lseek(fdStock, 0, SEEK_END);
                 idmax = numlseek/tamLinhaStocks;
                 
-                if(idmax <= id){ 
+                if(idmax < id){ 
                     close(fdStock); close(fdArtigos);
                     write(1,"error! id nao existe",20);
                     //enviar o erro para o cliente
@@ -199,7 +199,8 @@ while(flag_ctrl_c){
                 //verificar se o id existe:
                 numlseek = lseek(fdStock, 0, SEEK_END);
                 idmax = numlseek/tamLinhaStocks;
-                if(idmax <= id){ 
+                
+                if(idmax < id){ 
                     close(fdStock); 
                     //write(1,"error!",6);
                     //enviar o erro para o cliente
