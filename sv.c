@@ -55,6 +55,15 @@ int main(int argc, char* argv[]){
     char linhavendas[tamLinhaVendas];
     int montante=0;
 
+while(flag_ctrl_c){
+        fdqueue = open(nomeFifoGeral, O_RDONLY); 
+        if(fdqueue == -1){
+            
+            write(1,"error! fdqueue open sv\n",18);
+            perror(0);
+            _exit(errno);
+        }
+
    while(flag_ctrl_c){
         memset(buffRead, ' ',N);
         memset(linhavendas, ' ',tamLinhaVendas);
@@ -68,16 +77,12 @@ int main(int argc, char* argv[]){
         fdFifoCv = 0;
 
         //ler do fifo geral
-        fdqueue = open(nomeFifoGeral, O_RDONLY); 
-        if(fdqueue == -1){
-            
-            write(1,"error!",6);
-            perror(0);
-            _exit(errno);
-        }
         lidos = readln(fdqueue,buffRead, N);
-        close(fdqueue);
-        if(lidos <= 0) { perror(0); _exit(errno); break; }
+        if(lidos == -1) {
+            write(1,"error! fdqueue read sv\n",22);
+            perror(0); 
+            break;
+         }
             // fechar a queue para que os clientes possam escrever
         int numPalavrasInput = gatherArg(palavras,buffRead,lidos);
         if(numPalavrasInput > 3){ break; }
@@ -125,8 +130,9 @@ int main(int argc, char* argv[]){
                 fdStock = open("./stocks.txt", O_RDONLY , 0666);
                 fdArtigos = open("./artigos.txt", O_RDONLY, 0666);
                 if(fdArtigos == -1 || fdStock == -1){
+                    write(1,"error! fdartigos fdstock open sv\n",18);
                     perror(0);
-                    _exit(errno);
+                    break;
                 }
                 
                 //verificar se o id existe:
@@ -140,8 +146,9 @@ int main(int argc, char* argv[]){
                     sprintf(nomeFifoCv,"%s",palavras[0]);
                     fdFifoCv = open(nomeFifoCv,O_WRONLY);
                     if(fdFifoCv == -1){
+                        write(1,"error! fdfifocv open sv\n",18);
                         perror(0);
-                        _exit(errno);
+                        break;
                     }
                     write(fdFifoCv,"error! nao existe id",20);
                     close(fdFifoCv);
@@ -168,8 +175,9 @@ int main(int argc, char* argv[]){
                 sprintf(nomeFifoCv,"%s",palavras[0]);
                 fdFifoCv = open(nomeFifoCv,O_WRONLY);
                 if(fdFifoCv == -1){
+                    write(1,"error! fdfifocv open sv\n",18);
                     perror(0);
-                    _exit(errno);
+                    break;
                 }
                 write(fdFifoCv,linha2,32);
                 close(fdFifoCv);
@@ -178,14 +186,14 @@ int main(int argc, char* argv[]){
             case(3):
                 sscanf(buffRead, "%s %d %d", nomeFifoCv, &id, &quantidade);
                 if(!isNumber(palavras[1])){ 
-                    
+                    write(2,"id is not number",16);
                     escreverFifo(nomeFifoCv, "um dos campos não é válido.");
                     break;
                 }
                 fdStock = open("./stocks.txt", O_RDWR , 0666);
                 if(fdStock == -1){
                     perror(0);
-                    _exit(errno);
+                    break;
                 }
                 
                 //verificar se o id existe:
@@ -201,11 +209,11 @@ int main(int argc, char* argv[]){
                     if(fdFifoCv == -1){
 
                         perror(0);
-                        _exit(errno);
+                        break;
                     }
                     write(fdFifoCv,"error! id nao existe",20);
                     close(fdFifoCv);*/
-                  break;
+                    break;
                 }
 
                 //ler a quantidade em stock daquele id:
@@ -238,7 +246,7 @@ int main(int argc, char* argv[]){
                     if(fdArtigos == -1){
                         write(1,"erro fdartigos",14);
                         perror(0);
-                        _exit(errno);
+                        break;
                     }
 
                     lseek(fdArtigos, 16+(47*id),SEEK_SET);
@@ -261,7 +269,7 @@ int main(int argc, char* argv[]){
                         if(fdVendas == -1){
                               write(2,"erro fdvendas",13);
                               perror(0);
-                              _exit(errno);
+                              break;
                         }
                         lseek(fdArtigos,0,SEEK_END);
                         write(fdVendas,linhavendas,tamLinhaVendas);
@@ -270,17 +278,22 @@ int main(int argc, char* argv[]){
                     }
 
                 }
-                    break;
-
+                break;
+            /*
             default:
                 printf("default 1: \n");
-                break;
+                break;*/
 
         }
     /*    _exit(0);
     }*/
         
    }
+
+    close(fdqueue);
+}
+   perror(strerror(errno)); 
+    //break;
    write(1,"aaaaaaa",7);
    free(buffRead);
    return 0;

@@ -28,6 +28,7 @@ int main(){
 
   int flagErro;
 	i = 0;
+while(1){
   while(1){
     flagErro = 0;
     memset(buffRead, ' ',N);
@@ -39,8 +40,10 @@ int main(){
     ssize_t sread = readln(0, buffRead, N);
 	//printf("leu %d", i++);
     if(sread <=0){
+		write(1,"erro sread cv",14);
+		perror(0);
+		_exit(errno);
 		//unlink(nomefifo); 
-		break;
 	}
       
 	numPalavrasInput = gatherArg(palavras,buffRead,sread);
@@ -55,7 +58,7 @@ int main(){
 		break;		  
 		
 		case (2):
-		if(!isNumber(palavras[0]) || !isNumber(palavras[1])) {flagErro=1;}
+		if(!isNumber(palavras[0]) || !isStock(palavras[1])) {flagErro=1;}
 		sprintf(linha, "%s %s %s",nomefifo,palavras[0], palavras[1]);
 		break;		  
 		
@@ -69,18 +72,11 @@ int main(){
 		/// 3. Enviar a linha para o fifo queue:
 		//write(1, "entraaa", 7);
 		escreverFifo(nomeFifoGeral,linha);
-		/*
-		fdQueue = open(nomeFifoGeral, O_WRONLY);
-		//write(1, "abriu fifo geral", 16);
-		write(fdQueue, linha, strlen(linha));
-		//write(1,"escreveu na queue",17);
-		close(fdQueue);*/
-		//write(1,"fechou a queue", 14);
 		
 		//4. receber do fifo a resposta
 		fdFifo = open(nomefifo,O_RDONLY);
 		if(fdFifo <=0){
-			write(1,"erro fdFifo",11);
+			write(1,"erro fdFifo cv",11);
 			perror(0);
 			_exit(errno);
         }
@@ -93,7 +89,7 @@ int main(){
 		}
 
 
-  }
+  }}
   free(buffRead);
   return 0;
 }

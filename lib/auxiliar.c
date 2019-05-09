@@ -49,10 +49,12 @@ int main(){
 ssize_t readln(int fildes, void *buf, size_t nbyte){
     char* b = buf;
     int i = 0;
+    int n;
     while(i<nbyte){
-        int n = read(fildes,&b[i] ,1);
+        n = read(fildes,&b[i] ,1);
         //if(n <=0) return i;
-        if(n <=0) break;
+        if(n < 0) return n;
+        if(n == 0) break;
         char c = b[i];
         i++;
         if(c == '\n') break;
@@ -95,7 +97,7 @@ int isStock(char *string){
     for(i = 0; string[i] != '\n' && string[i] != '\0'; i++){
         //printf("o caracter é |%c|\n", string[i]);
         
-        if(!isdigit(string[i] || string[i] != '-')){ 
+        if(!isdigit(string[i]) && string[i] != '-'){ 
         
         return 0;
         }
