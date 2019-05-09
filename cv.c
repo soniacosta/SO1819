@@ -17,8 +17,8 @@ int main(){
   //fifo comum ao servidor e aos clientes
   char * nomeFifoGeral = "./queue";
   //int fifoQ=mkfifo(nomeFifoGeral, 0777); //se existir nao faz nada
-
-  int fdQueue, fdFifo;
+  int fdqueue = open("./queue", O_RDWR);
+  int  fdFifo;
 
   char* buffRead = malloc(N); //o buff dado ao read
   char* palavras[8]; 
@@ -71,7 +71,8 @@ while(1){
 		
 		/// 3. Enviar a linha para o fifo queue:
 		//write(1, "entraaa", 7);
-		escreverFifo(nomeFifoGeral,linha);
+		//escreverFifo(nomeFifoGeral,linha);
+		write(fdqueue,linha,tamLinha);
 		
 		//4. receber do fifo a resposta
 		fdFifo = open(nomefifo,O_RDONLY);
@@ -90,6 +91,7 @@ while(1){
 
 
   }}
+  close(fdqueue);
   free(buffRead);
   return 0;
 }
