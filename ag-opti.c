@@ -65,7 +65,6 @@ int main(){
         buff = malloc(sizeof(char)*numBits);
         lseek(fdAgregs, 0 , SEEK_SET);
         lidos = read(fdAgregs, buff,numBits);
-
         if(lidos < 0){
             perror(0);
             _exit(errno);
@@ -80,6 +79,8 @@ int main(){
     numBits = offset_end - offset_init;
     
     if(numBits > 0){
+        /*int i = 0;
+        while(i)*/
         
         buff = malloc(numBits);
         lseek(fdVendas,offset_init,SEEK_SET);

@@ -38,12 +38,11 @@ while(1){
     /// 1. Ler uma linha do input(0) e guardar no buf
 	
     ssize_t sread = readln(0, buffRead, N);
-	//printf("leu %d", i++);
+
     if(sread <=0){
-		//write(1,"erro sread cv",14);
+		//write(1,"erro sread cv. ",15);
 		perror(0);
 		_exit(errno);
-		//unlink(nomefifo); 
 	}
       
 	numPalavrasInput = gatherArg(palavras,buffRead,sread);
@@ -69,15 +68,13 @@ while(1){
 
 	if(flagErro != 1){ //se a flag estiver a 1 significa que não há boa informação e por isso nao deve escrever para o fifo
 		
-		/// 3. Enviar a linha para o fifo queue:
-		//write(1, "entraaa", 7);
 		//escreverFifo(nomeFifoGeral,linha);
 		write(fdqueue,linha,tamLinha);
 		
 		//4. receber do fifo a resposta
 		fdFifo = open(nomefifo,O_RDONLY);
-		if(fdFifo <=0){
-			//write(1,"erro fdFifo cv",11);
+		if(fdFifo == -1){
+			write(1,"erro fdFifo cv. ",16);
 			perror(0);
 			_exit(errno);
         }
@@ -92,7 +89,6 @@ while(1){
 
   }}
   close(fdqueue);
-  unlink(nomefifo);
   free(buffRead);
   return 0;
 }
