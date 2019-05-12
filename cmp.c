@@ -4,8 +4,8 @@
 int main(){
 
     //0.abrir ficheiros
-    int fdArtigos = open("./artigos.txt", O_CREAT | O_RDWR, 0666);
-    int fdStrings = open("./strings.txt", O_CREAT | O_RDWR, 0666);
+    int fdArtigos = open("./artigos", O_CREAT | O_RDWR, 0666);
+    int fdStrings = open("./strings", O_CREAT | O_RDWR, 0666);
     int fdStringsaux = open("./stringsaux.txt", O_CREAT | O_RDWR, 0666);
     if(fdArtigos == -1 || fdStrings == -1 || fdStringsaux == -1){
         perror(0);
@@ -13,7 +13,7 @@ int main(){
     }
 
     // 1.determinar numero de linhas de artigos
-    int tam=1024999;
+    int tam = 128;
     char buff[15];
     char buffRead[tam];
     int i=0;
@@ -31,7 +31,7 @@ int main(){
     int lista[N+1];
 
     //1.Guardar o conteudo que nao é lixo de strings em string aux
-    for(i=0;i<=N;i++){
+    for(i = 0; i<N; i++){
 
         memset(buff, ' ',15);   // iniciar o buff a espaço
         memset(buffRead,' ', tam);
@@ -58,16 +58,16 @@ int main(){
    
     //Apagar conteudo Strings
     close(fdStrings);
-    fdStrings = open("./strings.txt", O_TRUNC, 0666);
+    fdStrings = open("./strings", O_TRUNC, 0666);
     close(fdStrings);
 
     //escrever no fdStrings o novo conteudo
-    fdStrings = open("./strings.txt", O_RDWR , 0666);
+    fdStrings = open("./strings", O_RDWR , 0666);
     //write(2,buffFinal,lidos2);
     fim = write(fdStrings,buffFinal,lidos2);
 
     //redifinir referencias no fdArtigos:
-    for(i=0; i<=N; i++){
+    for(i=0; i<N; i++){
         lseek(fdArtigos,32+(47*i),SEEK_SET);
         sprintf(bitsCampoLinha,"%14d\n", lista[i]);
         write(fdArtigos, bitsCampoLinha, 14);
@@ -87,7 +87,7 @@ int main(){
     //passar a variavel para string para imprimir no 1(ou seja imprimir no dup)
     char tmp[16]={0x0};
     sprintf(tmp,"%0d\n", fim);
-    //write(2,tmp,16);
+    write(2,tmp,16);
     write(1,tmp,16);
 
     //return lidos2;

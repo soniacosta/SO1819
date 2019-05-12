@@ -74,7 +74,7 @@ int main(){
     }
 
     //abrir o ficheiro de vendas, e ler desde o offset da ultima agregacao ate ao fim
-    int fdVendas = open("./vendas.txt",O_RDONLY | O_CREAT);
+    int fdVendas = open("./vendas",O_RDONLY | O_CREAT);
     offset_end = lseek(fdVendas, 0, SEEK_END);
     
     numBits = offset_end - offset_init;
@@ -101,7 +101,7 @@ int main(){
             close(fd[0]); //fechamos o 0 (leitura)
             dup2(fd[1],1);
             close(fd[1]);
-            execlp("wc","wc", "-l", "artigos.txt",(char*)0); //queremos saber quantas linhas o ficheiro tem
+            execlp("wc","wc", "-l", "artigos",(char*)0); //queremos saber quantas linhas o ficheiro tem
             _exit(0);
         }
 

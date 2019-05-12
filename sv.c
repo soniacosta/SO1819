@@ -84,7 +84,7 @@ while(flag_ctrl_c){
 
                 if(isNumber(buffRead)){
                     sscanf(buffRead, "%d", &id);
-                    fdStock=open("./stocks.txt", O_RDWR | O_CREAT, 0666);
+                    fdStock=open("./stocks", O_RDWR | O_CREAT, 0666);
 
                     quantidade = 0;
 
@@ -100,6 +100,7 @@ while(flag_ctrl_c){
                             execl("./ag","ag",(char*)0); 
                             _exit(0);
                         }
+                        wait(0);
                     }
 
 
@@ -115,8 +116,8 @@ while(flag_ctrl_c){
                     escreverFifo(nomeFifoCv, "o id para consulta nao e valido. ");
                     break;
                 }
-                fdStock = open("./stocks.txt", O_RDONLY | O_CREAT , 0666);
-                fdArtigos = open("./artigos.txt", O_RDONLY | O_CREAT, 0666);
+                fdStock = open("./stocks", O_RDONLY | O_CREAT , 0666);
+                fdArtigos = open("./artigos", O_RDONLY | O_CREAT, 0666);
                 if(fdArtigos == -1 || fdStock == -1){
                     write(1,"erro! fdartigos fdstock open sv. ",33);
                     perror(0);
@@ -172,7 +173,7 @@ while(flag_ctrl_c){
                     escreverFifo(nomeFifoCv, "um dos campos nao e valido. ");
                     break;
                 }
-                fdStock = open("./stocks.txt", O_RDWR , 0666);
+                fdStock = open("./stocks", O_RDWR , 0666);
                 if(fdStock == -1){
                     perror(0);
                     break;
@@ -215,7 +216,7 @@ while(flag_ctrl_c){
                     close(fdStock);
 
                     //1.determinar o montante total através do ficheiro Artigos:
-                    int fdArtigos = open("./artigos.txt", O_RDONLY , 0666);
+                    int fdArtigos = open("./artigos", O_RDONLY , 0666);
                     if(fdArtigos == -1){
                         write(1,"erro fdartigos",14);
                         perror(0);
@@ -237,7 +238,7 @@ while(flag_ctrl_c){
 
                         //2.criar linhavendas:
                         sprintf(linhavendas, "%15d %15d %15d\n", id, absQuantidade,montante);
-                        int fdVendas = open("./vendas.txt", O_RDWR | O_CREAT , 0666);
+                        int fdVendas = open("./vendas", O_RDWR | O_CREAT , 0666);
                         if(fdVendas == -1){
                               write(2,"erro! fdvendas. ",16);
                               perror(0);

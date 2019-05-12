@@ -34,8 +34,8 @@ int main(int argc, char* argv[]){
 
 
     /* abrir ficheiros e verificar */
-    int fdArtigos = open("./artigos.txt", O_CREAT | O_RDWR, 0666);
-    int fdStrings = open("./strings.txt", O_CREAT | O_RDWR, 0666);
+    int fdArtigos = open("./artigos", O_CREAT | O_RDWR, 0666);
+    int fdStrings = open("./strings", O_CREAT | O_RDWR, 0666);
     if(fdArtigos == -1 || fdStrings == -1){
         perror(0);
         _exit(errno);
@@ -52,10 +52,10 @@ int main(int argc, char* argv[]){
         close(fd[0]); //fechamos o 0 (leitura)
         dup2(fd[1],1);
         close(fd[1]);
-        execlp("wc","wc", "-l", "artigos.txt",(char*)0); //queremos saber quantas linhas o ficheiro tem
+        execlp("wc","wc", "-l", "artigos",(char*)0); //queremos saber quantas linhas o ficheiro tem
         _exit(0);
     }
-
+    wait(0);
     close(fd[1]);//0 e de leitura
     char buf[10];
 
@@ -79,10 +79,10 @@ int main(int argc, char* argv[]){
         close(fd1[0]); //fechamos o 0 (leitura)
         dup2(fd1[1],1);
         close(fd1[1]);
-        execlp("wc","wc", "-l", "strings.txt",(char*)0); //queremos saber quantas linhas o ficheiro tem
+        execlp("wc","wc", "-l", "strings",(char*)0); //queremos saber quantas linhas o ficheiro tem
         _exit(0);
     }
-
+    wait(0);
     close(fd1[1]);//0 e de leitura
     char buf2[10];
 
@@ -164,7 +164,7 @@ int main(int argc, char* argv[]){
 
                     desperdicio++;
                     totalstrings++; 
-
+                    
                     sprintf(bitsCampoLinha,"%14d\n", numOff_setStrings); // guardar só o campo refNome com o novo valor
                     write(fdStrings,nome,tamNome);
                     numOff_setStrings+=tamNome;
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]){
                     write(fdArtigos,bitsCampoLinha,15); //escrever só o campo
                     free(nome);
 
-                    razao=desperdicio/totalstrings;
+                    razao = desperdicio/totalstrings;
                     if(razao>=0.2){
                         int fd3[2];
                         pipe(fd3);
