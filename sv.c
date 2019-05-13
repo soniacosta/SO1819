@@ -50,7 +50,7 @@ while(flag_ctrl_c){
         fdqueue = open(nomeFifoGeral, O_RDONLY); 
         if(fdqueue == -1){
             
-            write(1,"error! fdqueue open sv. ",24);
+            write(1,"erro ao abrir a queue no servidor. ",35);
             perror(0);
             _exit(errno);
         }
@@ -70,7 +70,7 @@ while(flag_ctrl_c){
         //ler do fifo geral
         lidos = readln(fdqueue,buffRead, N);
         if(lidos == -1) {
-            write(1,"error! fdqueue read sv. ",24);
+            write(1,"erro ao ler da queue no servidor. ",34);
             perror(0); 
             break;
          }
@@ -79,8 +79,11 @@ while(flag_ctrl_c){
 
         switch (numPalavrasInput){
 
-            
-            case (1): //instruçao que vem do ficheiro Artigo, para criar o stock
+            case (1): 
+            /*
+            * instruçao que vem do ma, para criar o stock
+            * instrucao que vem do ma para fazer agregacao
+            */
 
                 if(isNumber(buffRead)){
                     sscanf(buffRead, "%d", &id);
@@ -93,11 +96,14 @@ while(flag_ctrl_c){
                     write(fdStock,linhastock,32);
                     close(fdStock);
                 }else{
+                    /*
+                    * Agregacao
+                    */
                     if(buffRead[0] == 'a'){
                         write(2,"A iniciar agregacao! ",21);
                         if(!fork()){ 
 
-                            execl("./ag","ag",(char*)0); 
+                            execl("./ag-opti","ag-opti",(char*)0); 
                             _exit(0);
                         }
                         wait(0);
@@ -108,7 +114,10 @@ while(flag_ctrl_c){
                 break;
 
             
-            case(2): //instrucao que vem do cv com o nome do fifo e o id para consulta
+            case(2): 
+            /*
+            * instrucao que vem do cv com o nome do fifo e o id para consulta
+            */
                 sscanf(buffRead,"%s %d", nomeFifoCv,&id);
                 
                 if(!isNumber(palavras[1])){ 
@@ -119,11 +128,12 @@ while(flag_ctrl_c){
                 fdStock = open("./stocks", O_RDONLY | O_CREAT , 0666);
                 fdArtigos = open("./artigos", O_RDONLY | O_CREAT, 0666);
                 if(fdArtigos == -1 || fdStock == -1){
-                    write(1,"erro! fdartigos fdstock open sv. ",33);
+                    write(1,"erro ao abrir o artigos ou o stocks no servidor. ",49);
                     perror(0);
                     break;
                 }
                 
+                // verificar se o id existe
                 numlseek = lseek(fdStock, 0, SEEK_END);
                 idmax = numlseek/tamLinhaStocks;
                 
@@ -134,7 +144,7 @@ while(flag_ctrl_c){
                     sprintf(nomeFifoCv,"%s",palavras[0]);
                     fdFifoCv = open(nomeFifoCv,O_WRONLY);
                     if(fdFifoCv == -1){
-                        write(1,"erro! fdfifocv open sv. ",24);
+                        write(1,"erro ao abrir o fifo do cliente no servidor. ",45);
                         perror(0);
                         break;
                     }
@@ -158,7 +168,7 @@ while(flag_ctrl_c){
                 sprintf(nomeFifoCv,"%s",palavras[0]);
                 fdFifoCv = open(nomeFifoCv,O_WRONLY);
                 if(fdFifoCv == -1){
-                    write(1,"erro! fdfifocv open sv. ",24);
+                    write(1,"erro ao abrir o fifo do cliente no servidor. ",45);
                     perror(0);
                     break;
                 }
@@ -167,9 +177,12 @@ while(flag_ctrl_c){
                 break;
 
             case(3):
+            /*
+            * instrucao que vem do cv com alteracao de stock
+            */
                 sscanf(buffRead, "%s %d %d", nomeFifoCv, &id, &quantidade);
                 if(!isNumber(palavras[1])){ 
-                    write(2,"id is not number. ",18);
+                    write(2,"O id fornecido nao e um numero. ",32);
                     escreverFifo(nomeFifoCv, "um dos campos nao e valido. ");
                     break;
                 }
@@ -185,7 +198,7 @@ while(flag_ctrl_c){
                 if(idmax <= id){ 
                     close(fdStock); 
                     sprintf(nomeFifoCv,"%s",palavras[0]);
-                    escreverFifo(nomeFifoCv, "error! id nao existe"); 
+                    escreverFifo(nomeFifoCv, "erro! O id fornecido nao existe"); 
 
                     break;
                 }
@@ -196,13 +209,14 @@ while(flag_ctrl_c){
 
                 //guardar na variavel stock o stock atual(antes da ediçao):
                 sscanf(auxStock,"%d",&stock);
+
                 //verificar se é venda e se há stock
                 if(quantidade < 0 && stock < abs(quantidade)){
             
                     close(fdStock); 
                      //enviar o erro para o cliente
                     sprintf(nomeFifoCv,"%s",palavras[0]);
-                    escreverFifo(nomeFifoCv, "error! stock nao suficiente. ");
+                    escreverFifo(nomeFifoCv, "erro! O stock nao e suficiente. ");
                      
                 }else{
                 
@@ -232,6 +246,7 @@ while(flag_ctrl_c){
                     sprintf(nomeFifoCv,"%s",palavras[0]);
                     escreverFifo(nomeFifoCv, linhaquantidade);
                     
+                    //adiconar ou ficheiro de vendas
                     if(quantidade < 0){
                         absQuantidade = abs(quantidade);
                         montante = absQuantidade*preco;
@@ -240,7 +255,7 @@ while(flag_ctrl_c){
                         sprintf(linhavendas, "%15d %15d %15d\n", id, absQuantidade,montante);
                         int fdVendas = open("./vendas", O_RDWR | O_CREAT , 0666);
                         if(fdVendas == -1){
-                              write(2,"erro! fdvendas. ",16);
+                              write(2,"erro ao abrir ficheiro de vendas no servidor. ",46);
                               perror(0);
                               break;
                         }
@@ -257,7 +272,7 @@ while(flag_ctrl_c){
 
     close(fdqueue);
 }
-   perror(strerror(errno)); 
+   //perror(strerror(errno)); 
    free(buffRead);
    return 0;
 }

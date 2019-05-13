@@ -63,7 +63,7 @@ while(1){
 		
 		default:
 		flagErro = 1;
-		printf("erro!\n");
+		printf("informação invalida !\n");
 		break;		}
 
 	if(flagErro != 1){ //se a flag estiver a 1 significa que não há boa informação e por isso nao deve escrever para o fifo
@@ -74,7 +74,7 @@ while(1){
 		//4. receber do fifo a resposta
 		fdFifo = open(nomefifo,O_RDONLY);
 		if(fdFifo == -1){
-			write(1,"erro fdFifo cv. ",16);
+			write(1,"erro ao abrir o Fifo no cv. ",28);
 			perror(0);
 			_exit(errno);
         }

@@ -87,7 +87,7 @@ int main(){
     //passar a variavel para string para imprimir no 1(ou seja imprimir no dup)
     char tmp[16]={0x0};
     sprintf(tmp,"%0d\n", fim);
-    write(2,tmp,16);
+    
     write(1,tmp,16);
 
     //return lidos2;

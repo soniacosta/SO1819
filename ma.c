@@ -172,6 +172,9 @@ int main(int argc, char* argv[]){
                     write(fdArtigos,bitsCampoLinha,15); //escrever só o campo
                     free(nome);
 
+                    /*
+                    * verificar se é necessário fazer compactação
+                    */
                     razao = desperdicio/totalstrings;
                     if(razao>=0.2){
                         int fd3[2];
@@ -191,10 +194,6 @@ int main(int argc, char* argv[]){
                         char buf3[10];
 
                         n = readln(fd3[0],buf3, sizeof(buf3)); //lê do pipe para o buf
-                        /*if(n <0){
-                            perror(0);
-                            _exit(errno);
-                        }*/
                         close(fd3[0]);
 
                         sscanf(buf3, "%d",&numOff_setStrings);
@@ -224,12 +223,15 @@ int main(int argc, char* argv[]){
                     break;
 
                 case 'a':
+                    /*
+                    * fazer a agregação a pedido do utilizador
+                    */
                     if(lidos > 2) break;
-                    //write(2,"A iniciar agregacao",4);
+                    
                     fdqueue=open(nomeFifo, O_WRONLY);
                     write(fdqueue, "a", 1);
                     close(fdqueue);
-                    //write(1, "Agregacao iniciada.",18);
+                    
                     write(1,"\n",1);
                     break;
                 
