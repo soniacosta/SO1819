@@ -9,12 +9,8 @@ compile: ma.c cv.c
 	gcc cmp.c lib/auxiliar.c -o cmp
 run:
 	./ma < test_ma
+	./ma < test_ma2
 	./cv < test_cv
 	
 rm:
 	rm -f artigos strings stocks vendas 00* queue sv cv ma cmp ag ag-opti agregs.txt 2019*
-
-git:
-	git add .
-	git commit -m "update"
-	git push

@@ -171,7 +171,7 @@ int main(){
             close(fdPipes[i][0]);
             tamBuffFinal += n;
             printf("o tamanho é %d \n",tamBuffFinal);
-            char *p = realloc(buffFinal, tamBuffFinal+1);
+            char *p = realloc(buffFinal, (tamBuffFinal+1)*sizeof(char));
             if (!p) { perror(0); _exit(errno); } 
             else { buffFinal = p; }
             strcat(buffFinal,buf);
